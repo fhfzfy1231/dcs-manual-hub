@@ -1,0 +1,20 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Editor & OS settings
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Sensitive local configs (keep config.example.json in repo)
+# config.json

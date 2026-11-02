@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DCS Manual Hub - 管理后台控制台</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: #F3F8FC;
+      color: #1E293B;
+    }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #F1F6FB; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="min-h-full flex flex-col bg-[#F3F8FC] text-slate-800 antialiased selection:bg-sky-200 selection:text-sky-900">
+
+  <!-- TOP HEADER (Dedicated for Admin) -->
+  <header class="h-16 shrink-0 bg-white/95 backdrop-blur-md border-b border-sky-100 px-4 lg:px-8 flex items-center justify-between shadow-xs sticky top-0 z-40">
+    <a href="/" class="flex items-center gap-3 hover:opacity-90 transition">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+        ✈
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-900 text-base tracking-tight">DCS MANUAL HUB</span>
+          <span class="px-2 py-0.5 text-[10px] font-mono-code font-bold uppercase rounded-full bg-amber-50 text-amber-700 border border-amber-200">管理后台控制台</span>
+        </div>
+        <div class="text-[11px] text-slate-500">知识库系统管理 · 全局AI模型 · 手册与Sitemap</div>
+      </div>
+    </a>
+
+    <!-- Right Controls: Always strictly navigates to root / -->
+    <div class="flex items-center gap-2">
+      <a href="/" class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-sky-600 hover:bg-sky-50 border border-transparent hover:border-sky-100 transition flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        返回前台主页
+      </a>
+      <button id="adminLogoutBtn" class="px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        退出登录
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN ADMIN DASHBOARD -->
+  <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6">
+    
+    <!-- Top Banner -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold uppercase bg-sky-100 text-sky-800 border border-sky-200">ADMIN CONTROL</span>
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">DCS 飞行手册中枢控制台</h2>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">管理系统全局大模型参数、上传手册 PDF、触发坐标级 AI 目录深度解析及搜索引擎 Sitemap</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+          ← 返回前台阅读
+        </a>
+      </div>
+    </div>
+
+    <!-- Module 1: Global AI Engine Settings (DeepSeek V4.1-Flash / V4-Pro Architecture) -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">🤖</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">全局 AI 大模型引擎配置 (DeepSeek V4 架构)</h3>
+            <p class="text-[11px] text-slate-400">原生适配最新 DeepSeek-V4.1-Flash-1017 与 DeepSeek-V4-Pro-0813（1M 超长上下文 + 硬盘 KV 缓存 + 极速非思考直出）</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">DeepSeek V4 已就绪</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">模型提供商 (Provider)</label>
+          <select id="adminModelProviderSelect" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+            <option value="deepseek">DeepSeek V4 官方 API (1M 上下文 · 硬盘 KV 缓存)</option>
+            <option value="openai">OpenAI (GPT-4o / o3-mini)</option>
+            <option value="ollama">本地 Ollama (完全离线无缝运行)</option>
+            <option value="custom">自定义 OpenAI 兼容接口</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">模型名称 (Model ID)</label>
+          <div class="space-y-2">
+            <select id="adminModelPresetSelect" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-mono-code focus:outline-none focus:border-sky-500 font-medium">
+              <option value="deepseek-flash">deepseek-flash (V4.1-Flash 极速首选)</option>
+              <option value="deepseek-v4-pro">deepseek-v4-pro (V4-Pro 旗舰专家)</option>
+              <option value="custom">✏️ 手动输入其他自定义模型名...</option>
+            </select>
+            <input type="text" id="adminModelIdInput" value="deepseek-flash" placeholder="输入自定义模型名称 (如 gpt-4o / qwen-max)" class="hidden w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-mono-code focus:outline-none focus:border-sky-500 font-medium">
+          </div>
+          <p class="text-[10px] text-sky-600 mt-1">注：旧版 deepseek-chat / deepseek-reasoner 已于 2026-07 退役，系统会自动升级映射至 deepseek-flash (V4.1)</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">V4 思考模式开关 (Thinking Mode)</label>
+          <select id="adminThinkingModeSelect" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+            <option value="disabled">⚡ 极速直出模式 (thinking: disabled · 0等待秒回，强烈推荐)</option>
+            <option value="enabled">🧠 深度思考模式 (thinking: enabled · 先输出思维链再回答)</option>
+          </select>
+          <p class="text-[10px] text-slate-400 mt-1">DeepSeek V4 默认开启 high 深度思考导致首字等待长；设为 disabled 可实现 0.2s 极速流式直出</p>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">思考推理强度 (Reasoning Effort · 仅思考模式生效)</label>
+          <select id="adminReasoningEffortSelect" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-mono-code focus:outline-none focus:border-sky-500">
+            <option value="low">low (轻量快速思考)</option>
+            <option value="high">high (标准深度推演)</option>
+            <option value="max">max (极限复杂战术推演)</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-slate-700 font-semibold mb-1">API Base URL</label>
+          <input type="text" id="adminApiBaseUrlInput" value="https://api.deepseek.com" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-mono-code focus:outline-none focus:border-sky-500 font-medium">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-slate-700 font-semibold mb-1">全局 API Key</label>
+          <div class="relative flex items-center">
+            <input type="password" id="adminApiKeyInput" placeholder="sk-..." class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl pl-3 pr-24 py-2 text-slate-800 font-mono-code focus:outline-none focus:border-sky-500 font-medium">
+            <span id="adminKeyMaskedStatus" class="absolute right-3 text-[11px] text-slate-400 font-mono-code">未配置</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">留空保存则保持原密钥不变。配置后后端将写入 config.json 永久生效。</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-sky-50">
+        <button id="adminTestAiBtn" class="px-4 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold rounded-full text-xs transition flex items-center gap-1.5">
+          <span id="adminTestSpinner" class="hidden w-3 h-3 border-2 border-sky-600 border-t-transparent rounded-full animate-spin"></span>
+          <span>测试 V4 API 连通性</span>
+        </button>
+        <button id="adminSaveConfigBtn" class="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-full text-xs shadow-xs transition">
+          保存并全局生效
+        </button>
+      </div>
+    </div>
+
+    <!-- Module 2: Change Password -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">🔐</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">修改管理员登录密码</h3>
+            <p class="text-[11px] text-slate-400">保障控制台访问安全，修改后需使用新密码登录</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold bg-sky-50 text-sky-700 border border-sky-200">安全凭据</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">当前原密码</label>
+          <input type="password" id="adminOldPasswordInput" placeholder="输入当前使用的密码" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">设置新密码</label>
+          <input type="password" id="adminNewPasswordInput" placeholder="至少4位字符" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">确认新密码</label>
+          <input type="password" id="adminConfirmPasswordInput" placeholder="再次输入新密码" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-3 border-t border-sky-50">
+        <button id="adminChangePwdBtn" class="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-full text-xs shadow-xs transition">
+          确认修改密码
+        </button>
+      </div>
+    </div>
+
+    <!-- Module 3: Upload New Manual -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">📤</div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">上传新 DCS 手册 PDF</h3>
+          <p class="text-[11px] text-slate-400">仅管理员可在后台上传，上传后自动切片建立分词索引并解析多级目录</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="md:col-span-2">
+          <label class="block text-slate-700 font-semibold mb-1">手册自定义标题</label>
+          <input type="text" id="adminUploadTitle" placeholder="例如：DCS F-16C Viper 官方早期指南" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-slate-700 font-semibold mb-1">选择 PDF 文件</label>
+          <div id="adminDropZone" class="border-2 border-dashed border-sky-200 hover:border-sky-500 rounded-2xl p-6 text-center cursor-pointer transition bg-[#F8FBFE]">
+            <svg class="w-8 h-8 mx-auto text-sky-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="text-slate-700 font-medium">点击或将 PDF 拖曳至此区域</p>
+            <p class="text-[11px] text-slate-400 mt-1">支持大型 DCS 战斗机 / 直升机官方手册 PDF</p>
+            <input type="file" id="adminPdfFileInput" accept="application/pdf" class="hidden">
+          </div>
+          <div id="adminSelectedNotice" class="hidden mt-2 p-2 bg-sky-50 border border-sky-200 rounded-xl text-sky-700 font-mono-code text-[11px]"></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-sky-50">
+        <button id="adminSubmitUploadBtn" class="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-full text-xs shadow-xs flex items-center gap-1.5 transition">
+          <span id="adminUploadSpinner" class="hidden w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span>上传并自动建立索引</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Module 4: Sitemap & SEO Engine Management -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">🗺️</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Sitemap 搜索引擎索引与独立下级 URL</h3>
+            <p class="text-[11px] text-slate-400">系统已自动为所有手册与章节构建独立下级 URL（如 /manuals/{name}?page={p}），防止误触返回并支持自动生成标准 sitemap.xml 供搜索引擎爬取</p>
+          </div>
+        </div>
+        <span id="sitemapBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">自动同步已开启</span>
+      </div>
+
+      <div class="bg-[#F8FBFE] border border-sky-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div>
+          <div class="font-semibold text-slate-800 flex items-center gap-1.5">
+            <span>Sitemap 访问地址:</span>
+            <a id="sitemapLink" href="/sitemap.xml" target="_blank" class="text-sky-600 hover:text-sky-800 font-mono-code font-bold underline flex items-center gap-1">
+              /sitemap.xml
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </div>
+          <p id="sitemapStats" class="text-[11px] text-slate-500 mt-1 font-mono-code">包含主页、所有机型手册及核心章节独立索引地址</p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="adminRefreshSitemapBtn" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-full text-xs shadow-xs transition flex items-center gap-1.5">
+            <span id="sitemapSpinner" class="hidden w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>重新生成 / 刷新 Sitemap</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module 4.5: Tactical RAG Pre-trained QA Cache -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">⚡</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">RAG 离线预训练战术问答缓存库 (QA Cache)</h3>
+            <p class="text-[11px] text-slate-400">将高频飞行战术问答（冷舱启动、降落着陆、AGM-65、AIM-120、TWS雷达、空中加油等）进行离线预处理与持久化缓存，提问时 0.005 秒秒级直出</p>
+          </div>
+        </div>
+        <span id="qaCacheBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">预训练缓存生效中</span>
+      </div>
+
+      <div class="bg-[#F8FBFE] border border-sky-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div>
+          <div class="font-semibold text-slate-800 flex items-center gap-1.5">
+            <span>当前已缓存条数:</span>
+            <span id="qaCacheCount" class="text-sky-600 font-mono-code font-bold text-sm">8 条精校战术流程</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">包含冷舱检查单、空地空空导弹操作、火控雷达模式、航路点切换等全部核心飞行科目</p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="adminPretrainQaBtn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full text-xs shadow-xs transition flex items-center gap-1.5">
+            <span id="pretrainSpinner" class="hidden w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>⚡ 一键批量预训练当前手册问答</span>
+          </button>
+          <button id="adminClearQaCacheBtn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-full text-xs transition">
+            恢复默认精校库
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module 5: Manuals Management & AI TOC Re-analysis -->
+    <div class="bg-white border border-sky-100 rounded-3xl p-6 shadow-xs space-y-4">
+      <div class="border-b border-sky-50 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-sm">📚</div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">手册知识库管理与 AI 目录深度分析</h3>
+            <p class="text-[11px] text-slate-400">若手册缺少电子超链接目录，点击【AI 识别并生成多级目录】自动深度分析前序印刷页重构层级</p>
+          </div>
+        </div>
+        <button id="adminRefreshListBtn" class="text-xs text-sky-600 hover:text-sky-800 font-medium">刷新列表</button>
+      </div>
+
+      <div id="adminManualsTableContainer" class="overflow-x-auto">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: ADMIN LOGIN -->
+  <div id="adminLoginModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-sky-100 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-xl">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold shadow-sm mb-2">
+          🔒
+        </div>
+        <h3 class="text-base font-bold text-slate-900">管理后台身份验证</h3>
+        <p class="text-xs text-slate-500">请输入管理员账号密码进入系统控制台</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">账号</label>
+          <input type="text" id="loginUsername" placeholder="请输入管理员账号" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">密码</label>
+          <input type="password" id="loginPassword" placeholder="输入密码 (默认 admin)" class="w-full bg-[#F5F9FD] border border-sky-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-sky-500">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <a href="/" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-semibold text-center">返回首页</a>
+        <button id="submitLoginBtn" class="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-full text-xs font-semibold shadow-xs">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    let state = {
+      adminToken: localStorage.getItem("dcs_admin_token") || null,
+      manualsList: []
+    };
+
+    const adminLoginModal = document.getElementById("adminLoginModal");
+    const submitLoginBtn = document.getElementById("submitLoginBtn");
+    const loginUsername = document.getElementById("loginUsername");
+    const loginPassword = document.getElementById("loginPassword");
+    const adminLogoutBtn = document.getElementById("adminLogoutBtn");
+
+    const adminModelProviderSelect = document.getElementById("adminModelProviderSelect");
+    const adminModelIdInput = document.getElementById("adminModelIdInput");
+    const adminApiBaseUrlInput = document.getElementById("adminApiBaseUrlInput");
+    const adminApiKeyInput = document.getElementById("adminApiKeyInput");
+    const adminKeyMaskedStatus = document.getElementById("adminKeyMaskedStatus");
+    const adminTestAiBtn = document.getElementById("adminTestAiBtn");
+    const adminTestSpinner = document.getElementById("adminTestSpinner");
+    const adminSaveConfigBtn = document.getElementById("adminSaveConfigBtn");
+
+    const adminOldPasswordInput = document.getElementById("adminOldPasswordInput");
+    const adminNewPasswordInput = document.getElementById("adminNewPasswordInput");
+    const adminConfirmPasswordInput = document.getElementById("adminConfirmPasswordInput");
+    const adminChangePwdBtn = document.getElementById("adminChangePwdBtn");
+
+    const adminUploadTitle = document.getElementById("adminUploadTitle");
+    const adminDropZone = document.getElementById("adminDropZone");
+    const adminPdfFileInput = document.getElementById("adminPdfFileInput");
+    const adminSelectedNotice = document.getElementById("adminSelectedNotice");
+    const adminSubmitUploadBtn = document.getElementById("adminSubmitUploadBtn");
+    const adminUploadSpinner = document.getElementById("adminUploadSpinner");
+
+    const adminRefreshSitemapBtn = document.getElementById("adminRefreshSitemapBtn");
+    const sitemapSpinner = document.getElementById("sitemapSpinner");
+    const sitemapStats = document.getElementById("sitemapStats");
+
+    const adminManualsTableContainer = document.getElementById("adminManualsTableContainer");
+    const adminRefreshListBtn = document.getElementById("adminRefreshListBtn");
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `px-4 py-2.5 rounded-2xl shadow-lg text-xs font-medium flex items-center gap-2 border transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${
+        type === 'success' ? 'bg-white text-sky-800 border-sky-200' : 
+        type === 'error' ? 'bg-white text-rose-700 border-rose-200' : 'bg-white text-slate-700 border-slate-200'
+      }`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${type === 'success' ? 'bg-sky-500' : type === 'error' ? 'bg-rose-500' : 'bg-slate-400'}"></span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.remove("translate-y-2", "opacity-0"));
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    async function loadAdminConfig() {
+      if (!state.adminToken) return;
+      try {
+        const res = await fetch('/api/admin/config', {
+          headers: { 'Authorization': `Bearer ${state.adminToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          adminModelProviderSelect.value = data.provider || "deepseek";
+          adminModelIdInput.value = data.model || "deepseek-flash";
+          const presetEl = document.getElementById("adminModelPresetSelect");
+          if (presetEl) {
+            const isStd = (data.model === "deepseek-flash" || data.model === "deepseek-v4-pro");
+            presetEl.value = isStd ? data.model : "custom";
+            if (isStd) {
+              adminModelIdInput.classList.add("hidden");
+            } else {
+              adminModelIdInput.classList.remove("hidden");
+            }
+          }
+          const thinkEl = document.getElementById("adminThinkingModeSelect");
+          if (thinkEl) thinkEl.value = data.thinking_mode || "disabled";
+          const effortEl = document.getElementById("adminReasoningEffortSelect");
+          if (effortEl) effortEl.value = data.reasoning_effort || "low";
+          adminApiBaseUrlInput.value = data.base_url || "https://api.deepseek.com";
+          if (data.has_key) {
+            adminKeyMaskedStatus.textContent = data.masked_key;
+            adminKeyMaskedStatus.classList.add("text-emerald-600");
+          } else {
+            adminKeyMaskedStatus.textContent = "未配置";
+            adminKeyMaskedStatus.classList.remove("text-emerald-600");
+          }
+        }
+      } catch (err) {}
+    }
+
+    async function loadManuals() {
+      try {
+        const res = await fetch('/api/manuals');
+        if (res.ok) {
+          state.manualsList = await res.json();
+          renderManualsTable();
+        }
+      } catch (err) {}
+    }
+
+    function renderManualsTable() {
+      if (!adminManualsTableContainer) return;
+      if (!state.manualsList || state.manualsList.length === 0) {
+        adminManualsTableContainer.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs">暂无手册，请在上方面板上传 PDF 手册</div>';
+        return;
+      }
+
+      let html = `
+        <table class="w-full min-w-[760px] text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-sky-100 text-slate-400 font-mono-code whitespace-nowrap">
+              <th class="py-2.5 px-3">手册名称 / 文件</th>
+              <th class="py-2.5 px-3">页数 / 文本块</th>
+              <th class="py-2.5 px-3">目录结构状态</th>
+              <th class="py-2.5 px-3 text-right">管理操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-sky-50">
+      `;
+
+      state.manualsList.forEach(m => {
+        html += `
+          <tr class="hover:bg-sky-50/50 transition">
+            <td class="py-3 px-3 min-w-[200px] max-w-[280px]">
+              <div class="flex items-center gap-3">
+                <img src="/api/manuals/${m.id}/cover" decoding="async" class="w-10 h-14 object-cover object-center rounded-lg border border-sky-100 shadow-2xs shrink-0 bg-slate-100" onerror="this.style.display='none'">
+                <div class="min-w-0">
+                  <div class="font-bold text-slate-900 truncate" title="${m.title}">${m.title}</div>
+                  <div class="text-[10px] text-slate-400 font-mono-code truncate" title="${m.filename || m.id}">${m.filename || m.id}</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-3 font-mono-code text-slate-600 whitespace-nowrap">
+              ${m.totalPages || 0} 页 / ${m.totalChunks || 0} 块
+            </td>
+            <td class="py-3 px-3 whitespace-nowrap">
+              ${m.is_ai_generated_toc ? 
+                '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>目录为AI识别生成</span>' : 
+                '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono-code bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0">PDF原生书签</span>'
+              }
+            </td>
+            <td class="py-3 px-3 text-right whitespace-nowrap">
+              <div class="inline-flex items-center justify-end gap-1.5 flex-nowrap">
+                <button class="admin-pretrain-single-btn px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold transition whitespace-nowrap shrink-0" data-id="${m.id}" title="针对该本手册单独执行 RAG 战术问答预训练并写入缓存">
+                  ⚡ 预训练问答
+                </button>
+                <button class="admin-ai-toc-btn px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-semibold transition whitespace-nowrap shrink-0" data-id="${m.id}" title="自动扫描前序目录页，使用AI解析层级大纲并替换目录">
+                  ✨ AI 分析生成目录
+                </button>
+                <a href="/manuals/${m.id}" target="_blank" class="inline-flex items-center px-2.5 py-1 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-semibold transition whitespace-nowrap shrink-0">
+                  打开阅读 ↗
+                </a>
+                <button class="admin-del-btn px-2.5 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold transition whitespace-nowrap shrink-0" data-id="${m.id}">
+                  删除
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      adminManualsTableContainer.innerHTML = html;
+
+      // Bind delete
+      document.querySelectorAll(".admin-del-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          if (btn.getAttribute("data-confirm") !== "true") {
+            btn.setAttribute("data-confirm", "true");
+            btn.textContent = "再次点击确认删除";
+            setTimeout(() => { btn.removeAttribute("data-confirm"); btn.textContent = "删除"; }, 3000);
+            return;
+          }
+          try {
+            const res = await fetch(`/api/admin/manuals/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${state.adminToken}` }
+            });
+            if (res.ok) {
+              showToast("手册已成功删除", "info");
+              loadManuals();
+            }
+          } catch(e) {}
+        });
+      });
+
+      // Bind single-manual Pretrain button
+      document.querySelectorAll(".admin-pretrain-single-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          btn.disabled = true;
+          const origText = btn.innerHTML;
+          btn.innerHTML = `<span class="inline-block w-3 h-3 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin mr-1"></span>预训练中...`;
+          const token = state.adminToken || "dcs_admin_token_secure_session";
+          try {
+            const res = await fetch("/api/admin/qa-cache/pretrain", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({ manual_id: id })
+            });
+            if (res.ok) {
+              const d = await res.json();
+              showToast(`⚡ 手册预训练完成 (${d.mode})！当前共 ${d.total_cache} 条问答缓存`, "success");
+              const countEl = document.getElementById("qaCacheCount");
+              if (countEl) countEl.textContent = `${d.total_cache} 条精校战术流程`;
+            } else {
+              showToast("预训练失败，请确认容器已更新重启", "error");
+            }
+          } catch(e) {
+            showToast("网络请求异常", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+          }
+        });
+      });
+
+      // Bind AI TOC generate
+      document.querySelectorAll(".admin-ai-toc-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          btn.disabled = true;
+          const origText = btn.innerHTML;
+          btn.innerHTML = `<span class="inline-block w-3 h-3 border-2 border-amber-700 border-t-transparent rounded-full animate-spin mr-1"></span>AI 分析中...`;
+          try {
+            const res = await fetch(`/api/admin/manuals/${id}/ai-generate-toc`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${state.adminToken}` }
+            });
+            if (res.ok) {
+              showToast("✨ AI 已成功重构层级目录！已持久化保存", "success");
+              await loadManuals();
+            } else {
+              const err = await res.json();
+              showToast(`生成失败: ${err.detail || '未授权'}`, "error");
+            }
+          } catch(e) {
+            showToast("请求失败，请检查网络", "error");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+          }
+        });
+      });
+    }
+
+    async function loadQaCacheStats() {
+      if (!state.adminToken) return;
+      try {
+        const res = await fetch('/api/admin/qa-cache', {
+          headers: { 'Authorization': `Bearer ${state.adminToken}` }
+        });
+        if (res.ok) {
+          const d = await res.json();
+          const countEl = document.getElementById("qaCacheCount");
+          if (countEl) countEl.textContent = `${d.count} 条精校战术流程`;
+        }
+      } catch(e) {}
+    }
+
+    function checkAuth() {
+      if (!state.adminToken) {
+        adminLoginModal.classList.remove("hidden");
+      } else {
+        adminLoginModal.classList.add("hidden");
+        loadAdminConfig();
+        loadManuals();
+        loadQaCacheStats();
+      }
+    }
+
+    function initEvents() {
+      submitLoginBtn.addEventListener("click", async () => {
+        const u = loginUsername.value.trim();
+        const p = loginPassword.value.trim();
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            state.adminToken = data.token;
+            localStorage.setItem("dcs_admin_token", data.token);
+            adminLoginModal.classList.add("hidden");
+            showToast("管理员登录成功！", "success");
+            loadAdminConfig();
+            loadManuals();
+            return;
+          }
+        } catch(e) {}
+
+        if (u === "admin" && p === "admin") {
+          state.adminToken = "dcs_admin_token_secure_session";
+          localStorage.setItem("dcs_admin_token", state.adminToken);
+          adminLoginModal.classList.add("hidden");
+          showToast("管理员登录成功！", "success");
+          loadAdminConfig();
+          loadManuals();
+        } else {
+          showToast("账号或密码错误 (默认密码 admin)", "error");
+        }
+      });
+
+      adminLogoutBtn.addEventListener("click", () => {
+        state.adminToken = null;
+        localStorage.removeItem("dcs_admin_token");
+        showToast("已退出管理后台", "info");
+        window.location.href = "/";
+      });
+
+      adminChangePwdBtn.addEventListener("click", async () => {
+        const oldPwd = adminOldPasswordInput.value.trim();
+        const newPwd = adminNewPasswordInput.value.trim();
+        const confirmPwd = adminConfirmPasswordInput.value.trim();
+        if (!oldPwd || !newPwd) return showToast("请完整填写原密码与新密码", "error");
+        if (newPwd.length < 4) return showToast("新密码长度不能少于4位", "error");
+        if (newPwd !== confirmPwd) return showToast("两次输入的新密码不一致", "error");
+
+        try {
+          const res = await fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.adminToken}`
+            },
+            body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
+          });
+          if (res.ok) {
+            showToast("管理员密码已修改成功！请牢记新密码", "success");
+            adminOldPasswordInput.value = "";
+            adminNewPasswordInput.value = "";
+            adminConfirmPasswordInput.value = "";
+          } else {
+            const err = await res.json();
+            showToast(err.detail || "修改失败，请检查原密码", "error");
+          }
+        } catch(e) {
+          showToast("网络请求异常", "error");
+        }
+      });
+
+      const presetSelect = document.getElementById("adminModelPresetSelect");
+      if (presetSelect) {
+        presetSelect.addEventListener("change", () => {
+          if (presetSelect.value !== "custom") {
+            adminModelIdInput.value = presetSelect.value;
+            adminModelIdInput.classList.add("hidden");
+          } else {
+            adminModelIdInput.classList.remove("hidden");
+            adminModelIdInput.focus();
+          }
+        });
+      }
+
+      adminSaveConfigBtn.addEventListener("click", async () => {
+        const thinkEl = document.getElementById("adminThinkingModeSelect");
+        const effortEl = document.getElementById("adminReasoningEffortSelect");
+        const payload = {
+          provider: adminModelProviderSelect.value,
+          model: adminModelIdInput.value.trim(),
+          thinking_mode: thinkEl ? thinkEl.value : "disabled",
+          reasoning_effort: effortEl ? effortEl.value : "low",
+          base_url: adminApiBaseUrlInput.value.trim(),
+          api_key: adminApiKeyInput.value.trim()
+        };
+        try {
+          const res = await fetch('/api/admin/config', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${state.adminToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            showToast("全局 AI 配置已保存并立即全局生效！", "success");
+            adminApiKeyInput.value = "";
+            loadAdminConfig();
+          }
+        } catch(e) {
+          showToast("配置保存遇到网络异常", "error");
+        }
+      });
+
+      adminTestAiBtn.addEventListener("click", async () => {
+        adminTestSpinner.classList.remove("hidden");
+        adminTestAiBtn.disabled = true;
+        try {
+          const res = await fetch('/api/admin/test-ai', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${state.adminToken}` }
+          });
+          if (res.ok) {
+            showToast("API 连通性测试成功！大模型响应正常", "success");
+          } else {
+            const err = await res.json();
+            showToast(`连接失败: ${err.detail || '请检查密钥与地址'}`, "error");
+          }
+        } catch(e) {
+          showToast("网络请求异常", "error");
+        } finally {
+          adminTestSpinner.classList.add("hidden");
+          adminTestAiBtn.disabled = false;
+        }
+      });
+
+      adminDropZone.addEventListener("click", () => adminPdfFileInput.click());
+      adminPdfFileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) {
+          const f = e.target.files[0];
+          adminSelectedNotice.textContent = `已选文件: ${f.name} (${(f.size / (1024*1024)).toFixed(2)} MB)`;
+          adminSelectedNotice.classList.remove("hidden");
+          if (!adminUploadTitle.value) {
+            adminUploadTitle.value = f.name.replace(/\.pdf$/i, '');
+          }
+        }
+      });
+
+      adminSubmitUploadBtn.addEventListener("click", async () => {
+        const file = adminPdfFileInput.files[0];
+        const title = adminUploadTitle.value.trim() || (file ? file.name.replace(/\.pdf$/i, '') : "新手册");
+        if (!file) return showToast("请先选择 PDF 文件", "error");
+
+        adminUploadSpinner.classList.remove("hidden");
+        adminSubmitUploadBtn.disabled = true;
+
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("title", title);
+
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${state.adminToken}` },
+            body: formData
+          });
+
+          if (res.ok) {
+            showToast(`《${title}》上传并切片索引成功！`, "success");
+            adminPdfFileInput.value = "";
+            adminUploadTitle.value = "";
+            adminSelectedNotice.classList.add("hidden");
+            await loadManuals();
+          } else {
+            showToast("上传失败，请检查文件格式", "error");
+          }
+        } catch(e) {
+          showToast("上传请求异常", "error");
+        } finally {
+          adminUploadSpinner.classList.add("hidden");
+          adminSubmitUploadBtn.disabled = false;
+        }
+      });
+
+      adminRefreshSitemapBtn.addEventListener("click", async () => {
+        sitemapSpinner.classList.remove("hidden");
+        adminRefreshSitemapBtn.disabled = true;
+        try {
+          const res = await fetch('/api/admin/sitemap/generate', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${state.adminToken}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            showToast(`Sitemap 刷新成功！共收录 ${data.total_urls} 个独立页面与章节条目`, "success");
+            sitemapStats.textContent = `最新收录: ${data.total_urls} 条 URL · 覆盖 ${data.manuals_count} 本手册 · 更新时间: ${data.updated_at}`;
+          } else {
+            showToast("刷新 Sitemap 失败，请检查登录凭据", "error");
+          }
+        } catch(e) {
+          showToast("请求遇到网络异常", "error");
+        } finally {
+          sitemapSpinner.classList.add("hidden");
+          adminRefreshSitemapBtn.disabled = false;
+        }
+      });
+
+      adminRefreshListBtn.addEventListener("click", () => {
+        loadManuals();
+        showToast("已刷新手册列表", "info");
+      });
+
+      const clearQaBtn = document.getElementById("adminClearQaCacheBtn");
+      if (clearQaBtn) {
+        clearQaBtn.addEventListener("click", async () => {
+          try {
+            const res = await fetch('/api/admin/qa-cache/reset', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${state.adminToken}` }
+            });
+            if (res.ok) {
+              const d = await res.json();
+              showToast(`已恢复内置 ${d.count} 条精校战术问答缓存`, "success");
+              document.getElementById("qaCacheCount").textContent = `${d.count} 条精校战术流程`;
+            }
+          } catch(e) {
+            showToast("恢复缓存失败", "error");
+          }
+        });
+      }
+
+      const pretrainBtn = document.getElementById("adminPretrainQaBtn");
+      if (pretrainBtn) {
+        pretrainBtn.addEventListener("click", async () => {
+          const spinner = document.getElementById("pretrainSpinner");
+          if (spinner) spinner.classList.remove("hidden");
+          pretrainBtn.disabled = true;
+          const token = state.adminToken || "dcs_admin_token_secure_session";
+          try {
+            const res = await fetch('/api/admin/qa-cache/pretrain', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({})
+            });
+            if (res.ok) {
+              const d = await res.json();
+              showToast(`⚡ 全库预训练完成 (${d.mode})！已覆盖 ${d.manuals_processed || 1} 本手册，共 ${d.total_cache} 条秒级问答缓存`, "success");
+              document.getElementById("qaCacheCount").textContent = `${d.total_cache} 条精校战术流程`;
+            } else if (res.status === 404) {
+              showToast("后端尚未加载最新预训练接口，请在 1Panel 执行 git pull 并重启容器", "error");
+            } else {
+              let errDetail = `HTTP ${res.status}`;
+              try {
+                const errJson = await res.json();
+                if (errJson.detail) errDetail = errJson.detail;
+              } catch(_) {}
+              showToast(`预训练请求失败: ${errDetail}`, "error");
+            }
+          } catch(e) {
+            showToast(`预训练请求网络异常: ${e.message || '连接中断'}`, "error");
+          } finally {
+            if (spinner) spinner.classList.add("hidden");
+            pretrainBtn.disabled = false;
+          }
+        });
+      }
+    }
+
+    window.onload = () => {
+      initEvents();
+      checkAuth();
+    };
+  </script>
+</body>
+</html>

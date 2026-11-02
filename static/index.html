@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full overflow-hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DCS Manual Hub AI - 飞行手册智能知识库</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- PDF.js core library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: #F3F8FC;
+      color: #1E293B;
+    }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Elegant light scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #F1F6FB; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    
+    #pdfRenderCanvas {
+      display: block;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Text Layer: Enables text selection, copying, and clicking */
+    .textLayer {
+      position: absolute;
+      text-align: initial;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      opacity: 1;
+      line-height: 1;
+      text-size-adjust: none;
+      forced-color-adjust: none;
+      transform-origin: 0 0;
+      z-index: 5;
+      pointer-events: auto;
+    }
+    .textLayer span,
+    .textLayer br {
+      color: transparent;
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+    }
+    .textLayer ::selection {
+      background: rgba(14, 165, 233, 0.35);
+      color: transparent;
+    }
+
+    /* Annotation Layer: Interactive Hyperlinks (TOC and In-Page Links) */
+    .annotationLayer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      transform-origin: 0 0;
+      z-index: 10;
+    }
+    .annotationLayer section {
+      position: absolute;
+      text-align: initial;
+      pointer-events: auto;
+      box-sizing: border-box;
+    }
+    .annotationLayer .linkAnnotation > a,
+    .annotationLayer .buttonWidgetAnnotation.pushButton > a,
+    .annotationLayer section > a,
+    .pdf-interactive-link {
+      position: absolute;
+      font-size: 1em;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer !important;
+      background: rgba(14, 165, 233, 0.05);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      pointer-events: auto !important;
+      z-index: 12;
+    }
+    .annotationLayer .linkAnnotation > a:hover,
+    .annotationLayer section > a:hover,
+    .pdf-interactive-link:hover {
+      background: rgba(14, 165, 233, 0.22) !important;
+      border-color: #0284C7 !important;
+      outline: 1.5px dashed #0284C7 !important;
+    }
+    
+    .highlight-flash {
+      animation: skyFlashBorder 1.5s ease-out;
+    }
+    @keyframes skyFlashBorder {
+      0% { outline: 4px solid #0EA5E9; outline-offset: 2px; }
+      100% { outline: 4px solid transparent; outline-offset: 0; }
+    }
+    
+    
+    
+
+    .toc-item-active {
+      background-color: #E0F2FE !important;
+      color: #0369A1 !important;
+      font-weight: 600 !important;
+      border-left: 3px solid #0EA5E9 !important;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col bg-[#F3F8FC] text-slate-800 antialiased selection:bg-sky-200 selection:text-sky-900 overflow-hidden">
+
+  <!-- TOP NAVIGATION BAR (Fixed height 60px) -->
+  <header class="h-15 shrink-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-100 px-4 lg:px-6 flex items-center justify-between shadow-xs">
+    <div class="flex items-center gap-3 cursor-pointer" id="navHomeBtn">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+        ✈
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-900 text-base tracking-tight">DCS MANUAL HUB</span>
+          <span class="px-2 py-0.5 text-[10px] font-mono-code font-bold uppercase rounded-full bg-sky-100 text-sky-700 border border-sky-200">飞行手册智能知识库</span>
+        </div>
+        <div class="text-[11px] text-slate-500 hidden sm:block">Digital Combat Simulator 飞行手册智能知识库</div>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2">
+      <button id="viewHomeBtn" class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        全站首页
+      </button>
+
+      <button id="viewReaderBtn" class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        手册阅读器
+      </button>
+
+      
+    </div>
+  </header>
+
+  <!-- VIEW 1: HOME & GLOBAL SEARCH VIEW -->
+  <main id="homeView" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
+    <!-- Hero Banner with Modern Soft Sky-Blue Gradient -->
+    <div class="relative rounded-3xl overflow-hidden border border-sky-100 bg-gradient-to-br from-white via-[#F0F7FF] to-[#E2EEF9] p-6 md:p-8 shadow-sm">
+      <div class="relative z-10 max-w-2xl space-y-3.5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100/80 border border-sky-200 text-sky-700 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
+          AI 多级目录重构 · 真实 PDF 渲染 · 全局生效 AI
+        </div>
+        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+          DCS 飞行手册 <span class="text-sky-600 font-extrabold">智能检索与多级目录中枢</span>
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 leading-relaxed">
+          解决手册未做电子书签的痛点，支持 AI 自动扫描分析前序印刷目录重建完整层级大纲。全局配置大模型问答与全站混合检索。
+        </p>
+
+        <!-- Global Search Input Bar -->
+        <div class="pt-1">
+          <div class="relative flex items-center">
+            <input type="text" id="globalSearchInput" placeholder="全站搜索航电操作、仪表、按键或术语（例：AGM-65、HUD、冷启动、机炮）..." 
+                   class="w-full pl-11 pr-28 py-3 bg-white border border-sky-200 focus:border-sky-500 rounded-2xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none transition shadow-sm font-sans">
+            <div class="absolute left-3.5 text-sky-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <button id="globalSearchSubmitBtn" class="absolute right-1.5 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold text-xs rounded-xl transition shadow-xs">
+              全站检索
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 mt-2.5 text-xs text-slate-500">
+            <span class="font-medium text-slate-400">热搜推荐:</span>
+            <button class="quick-tag px-3 py-1 rounded-full bg-white hover:bg-sky-50 hover:text-sky-700 text-slate-600 border border-sky-100 transition shadow-2xs text-[11px]" data-query="AGM-65">AGM-65 小牛导弹</button>
+            <button class="quick-tag px-3 py-1 rounded-full bg-white hover:bg-sky-50 hover:text-sky-700 text-slate-600 border border-sky-100 transition shadow-2xs text-[11px]" data-query="HUD">HUD 抬头显示器</button>
+            <button class="quick-tag px-3 py-1 rounded-full bg-white hover:bg-sky-50 hover:text-sky-700 text-slate-600 border border-sky-100 transition shadow-2xs text-[11px]" data-query="冷启动">冷启动检查单</button>
+            <button class="quick-tag px-3 py-1 rounded-full bg-white hover:bg-sky-50 hover:text-sky-700 text-slate-600 border border-sky-100 transition shadow-2xs text-[11px]" data-query="航炮">航炮投射模式</button>
+            <button class="quick-tag px-3 py-1 rounded-full bg-white hover:bg-sky-50 hover:text-sky-700 text-slate-600 border border-sky-100 transition shadow-2xs text-[11px]" data-query="着陆">着陆航线</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL SEARCH RESULTS -->
+    <section id="searchResultsSection" class="hidden space-y-3">
+      <div class="flex items-center justify-between border-b border-sky-100 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+          <h2 class="text-base font-bold text-slate-900 tracking-tight">全站搜索结果 (<span id="resultsCount">0</span> 条)</h2>
+        </div>
+        <button id="clearSearchBtn" class="text-xs text-slate-400 hover:text-sky-600 transition">清空结果</button>
+      </div>
+      <div id="resultsList" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+      </div>
+    </section>
+
+    <!-- DCS AIRCRAFT MODULES GRID -->
+    <section class="space-y-3.5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 tracking-tight">已收录机型手册库 (MODULES)</h2>
+          <p class="text-xs text-slate-500">已就绪 manuals/ 目录中的真实 PDF 手册，点击卡片直接开启阅读与智能问答</p>
+        </div>
+        <button id="refreshManualsBtn" class="px-3 py-1.5 rounded-full bg-white hover:bg-sky-50 border border-sky-100 text-sky-700 text-xs font-medium flex items-center gap-1.5 shadow-2xs transition">
+          <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          刷新手册库
+        </button>
+      </div>
+
+      <div id="manualCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      </div>
+    </section>
+  </main>
+
+  <!-- VIEW 2: SPLIT-SCREEN MANUAL READER & AI COPILOT -->
+  <div id="readerView" class="hidden flex-1 h-[calc(100dvh-3.75rem)] w-full flex flex-col md:flex-row overflow-hidden">
+    
+    <!-- LEFT PANEL: COMPLETE HIERARCHICAL TABLE OF CONTENTS -->
+    <aside id="tocSidebar" class="w-full md:w-72 lg:w-80 bg-white border-r border-sky-100 flex flex-col h-full shrink-0 shadow-xs z-30 transition-all duration-300">
+      
+      <!-- Outline Header -->
+      <div class="p-3 border-b border-sky-100 bg-sky-50/50 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-800 tracking-wider flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+            完整多级目录 (OUTLINE)
+          </span>
+          <div class="flex items-center gap-1">
+            <button id="expandAllTocBtn" class="px-2 py-0.5 rounded-full bg-white hover:bg-sky-100 text-sky-700 border border-sky-200 text-[10px] font-semibold transition" title="展开全部子章节">展开</button>
+            <button id="collapseAllTocBtn" class="px-2 py-0.5 rounded-full bg-white hover:bg-sky-100 text-slate-600 border border-sky-100 text-[10px] font-semibold transition" title="折叠子章节">折叠</button>
+            <button id="toggleTocBtn" class="md:hidden text-slate-400 hover:text-slate-700 p-1 rounded-full text-xs ml-1" title="关闭目录">✕</button>
+          </div>
+        </div>
+
+        <!-- AI GENERATED TOC BADGE (Visible when manual TOC was generated by AI) -->
+        <div id="aiTocBadgeContainer" class="hidden">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            目录为AI识别生成
+          </span>
+        </div>
+      </div>
+
+      <!-- Module Selector inside reader -->
+      <div class="p-2.5 border-b border-sky-100 bg-white">
+        <label class="block text-[10px] font-mono-code text-slate-400 uppercase mb-1">切换当前手册</label>
+        <select id="readerModuleSelect" class="w-full bg-[#F5F9FD] border border-sky-100 rounded-xl px-2.5 py-1 text-xs text-slate-800 focus:outline-none focus:border-sky-500 font-medium">
+        </select>
+      </div>
+
+      <!-- Quick TOC Filter Bar -->
+      <div class="p-2 border-b border-sky-100 bg-sky-50/30">
+        <div class="relative">
+          <input type="text" id="tocFilterInput" placeholder="过滤目录章节 (例: AGM-65, HUD)..." 
+                 class="w-full bg-white border border-sky-200/80 rounded-xl px-2.5 py-1 text-[11px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 font-sans pl-7">
+          <svg class="w-3.5 h-3.5 text-sky-400 absolute left-2 top-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      <!-- Hierarchical TOC Tree -->
+      <div id="tocListContainer" class="flex-1 overflow-y-auto p-2 space-y-0.5 text-xs font-sans">
+      </div>
+      
+      <!-- Outline status footer -->
+      <div class="px-3 py-2 border-t border-sky-100 bg-[#F8FAFD] flex items-center justify-between text-[10px] text-slate-400 font-mono-code">
+        <span id="tocNodesCount">已解析目录节点</span>
+        <span class="text-sky-600 font-semibold">双向精准联动</span>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: PDF RENDERER -->
+    <section class="flex-1 flex flex-col h-full bg-[#EBF3FA] overflow-hidden relative">
+      
+      <!-- Reader Clean Toolbar -->
+      <div class="min-h-11 shrink-0 bg-white/95 backdrop-blur-md border-b border-sky-100 px-3 py-1 flex items-center justify-between gap-2 text-xs z-20 shadow-2xs overflow-x-auto">
+        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+          <button id="openTocBarBtn" class="md:hidden p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 shrink-0" title="打开目录">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+          </button>
+
+          <!-- Page navigation -->
+          <div class="inline-flex items-center gap-1 font-mono-code bg-[#F3F8FC] border border-sky-100 rounded-full px-2.5 py-0.5 whitespace-nowrap shrink-0">
+            <button id="prevPageBtn" class="p-0.5 rounded-full hover:bg-sky-200/60 text-slate-600 disabled:opacity-30 shrink-0" title="上一页 (键盘 ← 键)">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            
+            <div class="inline-flex items-center gap-1 text-xs whitespace-nowrap shrink-0">
+              <input type="number" id="pageNumberInput" value="1" min="1" max="1" class="w-10 text-center bg-transparent text-sky-700 font-bold focus:outline-none">
+              <span class="text-slate-400">/</span>
+              <span id="totalPagesSpan" class="text-slate-500">1</span>
+            </div>
+
+            <button id="nextPageBtn" class="p-0.5 rounded-full hover:bg-sky-200/60 text-slate-600 disabled:opacity-30 shrink-0" title="下一页 (键盘 → 键)">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <span class="hidden 2xl:inline-block text-[10px] text-slate-400 font-mono-code px-1.5 py-0.2 rounded-full bg-white border border-sky-100 ml-1 select-none whitespace-nowrap shrink-0" title="支持键盘 ← / → 箭头键快捷翻页">← / → 翻页 | ↑ / ↓ 滚动</span>
+          </div>
+        </div>
+
+        <!-- Center document title -->
+        <div class="hidden xl:flex items-center gap-1.5 min-w-0 flex-1 justify-center px-2">
+          <span id="currentDocTitle" class="font-bold text-slate-800 text-xs truncate">正在载入手册...</span>
+          <span class="px-2 py-0.2 rounded-full text-[10px] font-mono-code bg-sky-100 text-sky-700 font-semibold whitespace-nowrap shrink-0">PDF.js Native</span>
+        </div>
+
+        <!-- Zoom & AI copilot toggle -->
+        <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+          <div class="inline-flex items-center gap-1 bg-[#F3F8FC] border border-sky-100 rounded-full px-2 py-0.5 font-mono-code text-[11px] whitespace-nowrap shrink-0">
+            <button id="zoomOutBtn" class="px-1 hover:text-sky-600 text-slate-500 font-bold shrink-0">-</button>
+            <span id="zoomLevelSpan" class="px-1 text-slate-700 font-semibold whitespace-nowrap shrink-0">120%</span>
+            <button id="zoomInBtn" class="px-1 hover:text-sky-600 text-slate-500 font-bold shrink-0">+</button>
+          </div>
+
+          <!-- Fit to Height Button -->
+          <button id="fitHeightBtn" class="px-2.5 py-1 rounded-full bg-[#F3F8FC] hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-sky-100 text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs whitespace-nowrap shrink-0" title="适合高度 (自动缩放PDF至与视窗等高)">
+            <svg class="w-3.5 h-3.5 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            <span class="hidden lg:inline">适合高度</span>
+          </button>
+          <button id="fitWidthBtn" class="px-2.5 py-1 rounded-full bg-[#F3F8FC] hover:bg-sky-100 text-slate-700 hover:text-sky-700 border border-sky-100 text-xs font-semibold transition inline-flex items-center gap-1 shadow-2xs whitespace-nowrap shrink-0" title="适合宽度 (自动缩放PDF至与视窗等宽)">
+            <svg class="w-3.5 h-3.5 text-sky-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m0 0l-3-3m3 3l-3 3m-8 6h8m0 0l-3-3m3 3l-3 3"/></svg>
+            <span class="hidden lg:inline">适合宽度</span>
+          </button>
+
+          <button id="toggleAiDrawerBtn" class="inline-flex items-center gap-1.5 px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white rounded-full text-xs font-semibold shadow-xs transition whitespace-nowrap shrink-0">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse shrink-0"></span>
+            <span>AI 战术副官</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Document Scroll Container -->
+      <div id="pdfViewerScrollContainer" class="flex-1 h-full overflow-y-auto overflow-x-hidden p-3 sm:p-5 md:p-6 flex justify-center items-start">
+        <div id="canvasWrapper" class="relative shadow-md rounded-2xl bg-white overflow-hidden transition-all" style="margin: 0 auto;">
+          <canvas id="pdfRenderCanvas" class="block"></canvas>
+          <div id="textLayer" class="textLayer"></div>
+          <div id="annotationLayer" class="annotationLayer"></div>
+          <div id="pdfLoadingIndicator" class="hidden absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center space-y-2 rounded-2xl">
+            <div class="w-8 h-8 border-3 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-xs font-semibold text-sky-700">正在高清渲染页面...</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: AI TACTICAL COPILOT (Uses Admin Global Config) -->
+    <aside id="aiCopilotDrawer" class="w-full md:w-80 lg:w-96 bg-white border-l border-sky-100 flex flex-col h-full shrink-0 shadow-xs z-30 transition-all duration-300">
+      
+      <!-- Drawer Header -->
+      <div class="p-3 border-b border-sky-100 bg-sky-50/50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse"></div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-xs">DCS AI 战术副官</h3>
+            <div class="text-[10px] text-slate-500">基于全局 AI 引擎 · 严格依手册回答</div>
+          </div>
+        </div>
+        <button id="closeAiDrawerBtn" class="text-slate-400 hover:text-slate-700 p-1 rounded-full text-xs">✕</button>
+      </div>
+
+      <!-- Quick Queries (Pre-trained 0.005s Instant Hits) -->
+      <div class="p-2.5 border-b border-sky-100 bg-[#F9FBFE]">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">⚡ 预训练战术速查 (0.005s 秒出)</span>
+          <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">离线缓存就绪</span>
+        </div>
+        <div id="presetQuestionsList" class="flex flex-wrap gap-1">
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">冷舱启动步骤</button>
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">AGM-65 导弹投放模式</button>
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">AIM-120 主动雷达空空导弹超视距发射</button>
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">雷达模式切换与 TWS</button>
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">进近着陆与攻角控制</button>
+          <button class="quick-preset-btn px-2 py-1 rounded-lg bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-sky-100 shadow-2xs transition text-[11px]">RWR 威胁告警与干扰弹投放</button>
+        </div>
+      </div>
+
+      <!-- Messages History Scroll -->
+      <div id="aiChatHistory" class="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs font-sans">
+        <div class="flex gap-2.5 items-start">
+          <div class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 font-bold flex items-center justify-center shrink-0 text-xs shadow-2xs">
+            AI
+          </div>
+          <div class="bg-[#F5F9FD] border border-sky-100 rounded-2xl rounded-tl-sm p-3 text-slate-700 space-y-1.5 leading-relaxed shadow-2xs">
+            <p>长官好！我是基于 <strong>DeepSeek V4.1-Flash</strong> 架构的 DCS 战术副官。当前已载入 <strong id="greetingModuleName" class="text-sky-700 font-bold">真实 PDF 手册</strong>。</p>
+            <p class="text-[11px] text-slate-500">已开启 <strong>V4 极速直出模式</strong> 与 <strong>预训练战术问答库</strong>。直接点击上方快捷科目或提问，带 <span class="text-sky-600 font-mono-code font-bold underline cursor-pointer test-jump-demo" data-page="1">[P. 1]</span> 页码标签一键跳转 PDF！</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="p-3 border-t border-sky-100 bg-[#F9FBFE]">
+        <div class="flex items-center justify-between mb-1.5 text-[11px]">
+          <label class="inline-flex items-center gap-1.5 cursor-pointer select-none text-slate-600 hover:text-sky-700">
+            <input type="checkbox" id="copilotThinkingToggle" class="rounded border-sky-300 text-sky-600 focus:ring-sky-500 w-3.5 h-3.5">
+            <span class="font-medium">开启 V4 深度思考 (Thinking Mode)</span>
+          </label>
+          <span id="copilotModeHint" class="text-[10px] font-mono-code text-emerald-600 font-semibold">⚡ V4.1-Flash 极速直出</span>
+        </div>
+        <div class="relative">
+          <textarea id="aiChatInput" rows="2" placeholder="提问：例如“AGM-65 导弹投放模式”..." 
+                    class="w-full bg-white border border-sky-200 focus:border-sky-500 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none resize-none font-sans shadow-2xs"></textarea>
+          <button id="aiChatSendBtn" class="absolute right-2 bottom-2.5 px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1 shadow-xs">
+            发送
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+        <div class="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono-code">
+          <span>Enter 发送 / Shift+Enter 换行</span>
+          <span class="text-sky-600 font-semibold">DeepSeek V4.1 引擎</span>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- JAVASCRIPT APPLICATION CORE -->
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    // STATE
+    let state = {
+      currentView: "home", // home, reader, admin
+      manualsList: [],
+      activeManualId: null,
+      currentPdfDoc: null,
+      currentPage: 1,
+      totalPages: 1,
+      zoomLevel: 120,
+      isRendering: false,
+      renderTask: null,
+      adminToken: localStorage.getItem("dcs_admin_token") || null,
+      hierarchicalOutline: [],
+      flatOutlineItems: []
+    };
+
+    // DOM ELEMENTS
+    const homeView = document.getElementById("homeView");
+    const readerView = document.getElementById("readerView");
+    
+
+    const navHomeBtn = document.getElementById("navHomeBtn");
+    const viewHomeBtn = document.getElementById("viewHomeBtn");
+    const viewReaderBtn = document.getElementById("viewReaderBtn");
+    
+
+    const manualCardsContainer = document.getElementById("manualCardsContainer");
+    const refreshManualsBtn = document.getElementById("refreshManualsBtn");
+    const globalSearchInput = document.getElementById("globalSearchInput");
+    const globalSearchSubmitBtn = document.getElementById("globalSearchSubmitBtn");
+    const searchResultsSection = document.getElementById("searchResultsSection");
+    const resultsList = document.getElementById("resultsList");
+    const resultsCount = document.getElementById("resultsCount");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+    const readerModuleSelect = document.getElementById("readerModuleSelect");
+    const tocListContainer = document.getElementById("tocListContainer");
+    const tocFilterInput = document.getElementById("tocFilterInput");
+    const expandAllTocBtn = document.getElementById("expandAllTocBtn");
+    const collapseAllTocBtn = document.getElementById("collapseAllTocBtn");
+    const tocNodesCount = document.getElementById("tocNodesCount");
+    const aiTocBadgeContainer = document.getElementById("aiTocBadgeContainer");
+
+    const currentDocTitle = document.getElementById("currentDocTitle");
+    const pageNumberInput = document.getElementById("pageNumberInput");
+    const totalPagesSpan = document.getElementById("totalPagesSpan");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomLevelSpan = document.getElementById("zoomLevelSpan");
+    const pdfRenderCanvas = document.getElementById("pdfRenderCanvas");
+    const pdfLoadingIndicator = document.getElementById("pdfLoadingIndicator");
+
+    const toggleAiDrawerBtn = document.getElementById("toggleAiDrawerBtn");
+    const closeAiDrawerBtn = document.getElementById("closeAiDrawerBtn");
+    const openTocBarBtn = document.getElementById("openTocBarBtn");
+    const toggleTocBtn = document.getElementById("toggleTocBtn");
+    const tocSidebar = document.getElementById("tocSidebar");
+
+    const aiCopilotDrawer = document.getElementById("aiCopilotDrawer");
+    const aiChatHistory = document.getElementById("aiChatHistory");
+    const aiChatInput = document.getElementById("aiChatInput");
+    const aiChatSendBtn = document.getElementById("aiChatSendBtn");
+    const greetingModuleName = document.getElementById("greetingModuleName");
+
+    // Admin elements
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+    // 1. FETCH MANUALS FROM BACKEND
+    async function loadManualsFromBackend() {
+      try {
+        const res = await fetch('/api/manuals');
+        if (res.ok) {
+          const manuals = await res.json();
+          if (Array.isArray(manuals) && manuals.length > 0) {
+            state.manualsList = manuals;
+            renderManualCards();
+            updateReaderSelector();
+            if (state.currentView === "admin") {
+              renderAdminManualsTable();
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Backend not available, fallback to mock list", err);
+      }
+
+      state.manualsList = [
+        {
+          id: "f16c",
+          title: "DCS: F-16C Viper Guide (预置示例)",
+          docTitle: "DCS: F-16C Viper Guide",
+          totalPages: 248,
+          is_ai_generated_toc: true,
+          toc: [
+            { 
+              title: "1. 飞机概览与座舱布局", 
+              page: 12,
+              children: [
+                { title: "前仪表板与 HUD 显示", page: 16 },
+                { title: "左控制台与电气面板", page: 22 },
+                { title: "右控制台与传感器面板", page: 28 }
+              ]
+            },
+            { 
+              title: "2. HOTAS 操纵杆定义表", 
+              page: 42,
+              children: [
+                { title: "TMS 目标管理四向开关", page: 44 },
+                { title: "DMS 显示管理四向开关", page: 48 },
+                { title: "CMS 对抗措施管理开关", page: 52 }
+              ]
+            },
+            { 
+              title: "3. 火控雷达系统 (RWS / TWS)", 
+              page: 88,
+              children: [
+                { title: "RWS 速度搜索模式", page: 92 },
+                { title: "TWS 边扫描边跟踪模式", page: 98 },
+                { title: "ACM 近距格斗视线模式", page: 104 }
+              ]
+            },
+            { 
+              title: "4. 空对空与空对地武器投放", 
+              page: 108,
+              children: [
+                { title: "AIM-120 超视距主动雷达导弹", page: 110 },
+                { title: "AIM-9X 响尾蛇大离轴格斗弹", page: 122 },
+                { title: "Litening TGP 瞄准吊舱操作", page: 145 },
+                { title: "AGM-65 小牛导弹红外导引", page: 160 }
+              ]
+            },
+            { 
+              title: "5. 冷启动检查单与应急程序", 
+              page: 192,
+              children: [
+                { title: "地面电源与 JFS 启动", page: 194 },
+                { title: "INS 惯导快速对准流程", page: 202 },
+                { title: "发动机空中停车重启", page: 230 }
+              ]
+            }
+          ]
+        }
+      ];
+      renderManualCards();
+      updateReaderSelector();
+    }
+
+    // 2. RENDER HOMEPAGE CARDS
+    function renderManualCards() {
+      manualCardsContainer.innerHTML = "";
+      if (state.manualsList.length === 0) {
+        manualCardsContainer.innerHTML = `
+          <div class="col-span-3 p-8 text-center bg-white rounded-3xl border border-sky-100 shadow-2xs">
+            <p class="text-slate-800 font-bold text-base">当前 manuals 文件夹中暂未检测到 PDF 手册</p>
+            <p class="text-xs text-slate-400 mt-1">管理员可点击右上角【管理后台】进行上传与 AI 目录解析。</p>
+          </div>
+        `;
+        return;
+      }
+
+      state.manualsList.forEach(mod => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-2xl border border-sky-100/90 hover:border-sky-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group shadow-2xs hover:shadow-lg p-4 space-y-3 cursor-pointer";
+        card.setAttribute("data-id", mod.id);
+        
+        card.innerHTML = `
+          <div>
+            <!-- PDF Authentic 3:4 Portrait Book Cover -->
+            <div class="relative w-full aspect-[3/4] bg-[#F1F5F9] rounded-xl overflow-hidden mb-3.5 border border-sky-100/80 group-hover:border-sky-300 transition shadow-2xs flex items-center justify-center">
+              <img id="cover-${mod.id}" 
+                   src="/api/manuals/${mod.id}/cover" 
+                   alt="${mod.title} 封面" 
+                   decoding="async" fetchpriority="high" class="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-105"
+                   onerror="fallbackRenderPdfCover('${mod.id}', this)" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 pointer-events-none">
+                <span class="text-white text-xs font-semibold flex items-center gap-1.5 drop-shadow-sm">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                  点击开启全本阅读
+                </span>
+              </div>
+            </div>
+
+            <!-- Badges & Page Count -->
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold uppercase tracking-wider ${mod.is_ai_generated_toc ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-sky-50 text-sky-700 border border-sky-200'}">
+                ${mod.is_ai_generated_toc ? 'AI识别目录' : 'DCS官方手册'}
+              </span>
+              <span class="text-[11px] font-mono-code text-slate-500 bg-[#F1F6FA] border border-sky-100 px-2.5 py-0.5 rounded-full font-semibold">
+                ${mod.totalPages || '--'} 页
+              </span>
+            </div>
+            
+            <!-- Manual Title -->
+            <h3 class="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition truncate" title="${mod.title}">
+              ${mod.title}
+            </h3>
+            <p class="text-[11px] text-slate-500 line-clamp-1 leading-relaxed font-mono-code mt-0.5">
+              ${mod.filename ? '文件: ' + mod.filename : '已就绪全文检索与层级目录'}
+            </p>
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div class="pt-2.5 border-t border-sky-50 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-mono-code">PDF.js 原生渲染</span>
+            <button class="open-manual-btn px-3.5 py-1.5 rounded-full bg-sky-50 hover:bg-sky-500 text-sky-700 hover:text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-2xs" data-id="${mod.id}">
+              开启阅读
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        `;
+
+        // Clicking anywhere on the card opens the manual
+        card.addEventListener("click", (e) => {
+          if (!e.target.closest(".open-manual-btn")) {
+            switchToReader(mod.id, 1, true);
+          }
+        });
+
+        manualCardsContainer.appendChild(card);
+      });
+
+      document.querySelectorAll(".open-manual-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const modId = btn.getAttribute("data-id");
+          switchToReader(modId, 1);
+        });
+      });
+    }
+
+    
+    // Cover image fallback: Renders page 1 ONCE at 480x640, compresses to ~35KB JPEG, and uploads to server so future page loads are 100% instant
+    const fallbackCoverCache = {};
+    async function fallbackRenderPdfCover(manualId, imgElement) {
+      imgElement.onerror = null; // prevent loop
+      if (fallbackCoverCache[manualId]) {
+        imgElement.src = fallbackCoverCache[manualId];
+        return;
+      }
+      try {
+        const pdfSource = `/api/manuals/${manualId}/pdf`;
+        const loadingTask = pdfjsLib.getDocument(pdfSource);
+        const pdfDoc = await loadingTask.promise;
+        const page = await pdfDoc.getPage(1);
+        const origVp = page.getViewport({ scale: 1.0 });
+        const targetWidth = 480;
+        const scale = targetWidth / origVp.width;
+        const viewport = page.getViewport({ scale: scale });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(viewport.width);
+        canvas.height = Math.round(viewport.height);
+        const ctx = canvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+        fallbackCoverCache[manualId] = dataUrl;
+        imgElement.src = dataUrl;
+
+        // Upload compressed cover back to server so it is permanently saved on disk
+        fetch(`/api/manuals/${manualId}/cover`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data_url: dataUrl })
+        }).catch(() => {});
+      } catch (err) {
+        imgElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 300 400"><rect width="100%" height="100%" fill="%23E0F2FE"/><text x="50%" y="45%" font-family="sans-serif" font-weight="bold" font-size="20" fill="%230284C7" text-anchor="middle">✈ DCS MANUAL</text><text x="50%" y="65%" font-family="sans-serif" font-size="12" fill="%2364748B" text-anchor="middle">${encodeURIComponent(manualId.toUpperCase())}</text></svg>`;
+      }
+    }
+
+    function updateReaderSelector() {
+      readerModuleSelect.innerHTML = "";
+      state.manualsList.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = m.title;
+        readerModuleSelect.appendChild(opt);
+      });
+    }
+
+    // 3. RECURSIVE OUTLINE RESOLVER
+    async function resolveOutlineDestination(dest) {
+      if (dest == null) return null;
+      try {
+        if (typeof dest === 'number') {
+          return dest >= 1 ? Math.floor(dest) : 1;
+        }
+        let explicitDest = dest;
+        if (typeof dest === 'string') {
+          explicitDest = await state.currentPdfDoc.getDestination(dest);
+        }
+        if (Array.isArray(explicitDest) && explicitDest.length > 0) {
+          const first = explicitDest[0];
+          if (typeof first === 'number') {
+            return first + 1;
+          } else if (first && typeof first === 'object') {
+            const pageIndex = await state.currentPdfDoc.getPageIndex(first);
+            if (typeof pageIndex === 'number' && pageIndex >= 0) {
+              return pageIndex + 1;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to resolve destination:", dest, err);
+      }
+      return null;
+    }
+
+    async function parsePdfOutlineRecursive(items, level = 0) {
+      const result = [];
+      for (const item of items) {
+        const pageNum = await resolveOutlineDestination(item.dest);
+        const node = {
+          title: item.title ? item.title.trim() : '未命名章节',
+          page: pageNum,
+          level: level,
+          children: []
+        };
+        if (item.items && item.items.length > 0) {
+          node.children = await parsePdfOutlineRecursive(item.items, level + 1);
+        }
+        result.push(node);
+      }
+      return result;
+    }
+
+    function flattenOutline(nodes) {
+      const list = [];
+      function recurse(n) {
+        list.push(n);
+        if (n.children) {
+          n.children.forEach(recurse);
+        }
+      }
+      nodes.forEach(recurse);
+      return list;
+    }
+
+    // 4. RENDER COMPLETE HIERARCHICAL TREE TO SIDEBAR (With AI Badge Tagging)
+    function renderHierarchicalOutline(nodes, filterText = "") {
+      tocListContainer.innerHTML = "";
+      const filterLower = filterText.toLowerCase().trim();
+
+      const currentMod = state.manualsList.find(m => m.id === state.activeManualId);
+      if (currentMod && currentMod.is_ai_generated_toc) {
+        aiTocBadgeContainer.classList.remove("hidden");
+      } else {
+        aiTocBadgeContainer.classList.add("hidden");
+      }
+
+      if (!nodes || nodes.length === 0) {
+        tocListContainer.innerHTML = `
+          <div class="p-4 text-center text-slate-400 text-xs">
+            该 PDF 手册未内嵌层级书签，请在【管理后台】点击 AI 识别生成目录
+          </div>
+        `;
+        tocNodesCount.textContent = "无书签";
+        return;
+      }
+
+      state.flatOutlineItems = flattenOutline(nodes);
+      tocNodesCount.textContent = `共 ${state.flatOutlineItems.length} 个目录章节`;
+
+      const rootUl = document.createElement("ul");
+      rootUl.className = "space-y-0.5";
+
+      function buildDomTree(treeNodes, container, level) {
+        treeNodes.forEach((node) => {
+          const matchesSelf = !filterLower || node.title.toLowerCase().includes(filterLower);
+          const hasMatchingChild = node.children && node.children.some(c => checkNodeMatchRecursive(c, filterLower));
+
+          if (filterLower && !matchesSelf && !hasMatchingChild) {
+            return;
+          }
+
+          const li = document.createElement("li");
+          li.className = "relative group select-none";
+
+          const hasChildren = node.children && node.children.length > 0;
+          const isInitiallyOpen = level === 0 || (filterLower && hasMatchingChild);
+
+          const row = document.createElement("div");
+          row.className = `toc-row flex items-center justify-between py-1.5 px-2 rounded-xl hover:bg-sky-50 cursor-pointer transition text-slate-700 hover:text-sky-800 ${state.currentPage === node.page ? 'toc-item-active' : ''}`;
+          row.style.paddingLeft = `${Math.min(level * 14 + 6, 60)}px`;
+          row.setAttribute("data-page", node.page);
+
+          const leftDiv = document.createElement("div");
+          leftDiv.className = "flex items-center gap-1.5 min-w-0 flex-1 pr-1.5";
+
+          if (hasChildren) {
+            const chevron = document.createElement("button");
+            chevron.className = "toc-toggle-btn w-4 h-4 flex items-center justify-center text-slate-400 hover:text-sky-600 transition-transform duration-200 shrink-0 text-[10px]";
+            chevron.innerHTML = isInitiallyOpen ? '▼' : '▶';
+            chevron.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const childUl = li.querySelector(".toc-children-ul");
+              if (childUl) {
+                const isHidden = childUl.classList.toggle("hidden");
+                chevron.innerHTML = isHidden ? '▶' : '▼';
+              }
+            });
+            leftDiv.appendChild(chevron);
+          } else {
+            const dot = document.createElement("span");
+            dot.className = "w-4 h-4 flex items-center justify-center text-slate-300 text-[10px] shrink-0";
+            dot.textContent = level === 0 ? '▪' : '•';
+            leftDiv.appendChild(dot);
+          }
+
+          const titleSpan = document.createElement("span");
+          titleSpan.className = `truncate text-xs ${level === 0 ? 'font-semibold text-slate-800' : 'text-slate-600 group-hover:text-slate-800'}`;
+          titleSpan.title = `${node.title} (第 ${node.page} 页)`;
+          
+          if (filterLower && matchesSelf) {
+            const re = new RegExp(`(${filterLower})`, 'gi');
+            titleSpan.innerHTML = node.title.replace(re, '<mark class="bg-sky-200 text-sky-900 rounded px-0.5">$1</mark>');
+          } else {
+            titleSpan.textContent = node.title;
+          }
+          leftDiv.appendChild(titleSpan);
+
+          const pageBadge = document.createElement("span");
+          pageBadge.className = "text-[10px] font-mono-code text-slate-400 group-hover:text-sky-600 px-1.5 py-0.2 rounded-md bg-[#F1F6FA] border border-sky-100 shrink-0 transition font-bold";
+          pageBadge.textContent = `P.${node.page}`;
+
+          row.appendChild(leftDiv);
+          row.appendChild(pageBadge);
+
+          row.addEventListener("click", () => {
+            renderPdfPage(node.page);
+            setActiveTocItem(node.page);
+          });
+
+          li.appendChild(row);
+
+          if (hasChildren) {
+            const childUl = document.createElement("ul");
+            childUl.className = `toc-children-ul space-y-0.5 border-l border-sky-100 ml-3.5 my-0.5 ${isInitiallyOpen ? '' : 'hidden'}`;
+            buildDomTree(node.children, childUl, level + 1);
+            li.appendChild(childUl);
+          }
+
+          container.appendChild(li);
+        });
+      }
+
+      function checkNodeMatchRecursive(node, query) {
+        if (!query) return true;
+        if (node.title && node.title.toLowerCase().includes(query)) return true;
+        if (node.children && node.children.length > 0) {
+          return node.children.some(c => checkNodeMatchRecursive(c, query));
+        }
+        return false;
+      }
+
+      buildDomTree(nodes, rootUl, 0);
+      tocListContainer.appendChild(rootUl);
+    }
+
+    function setActiveTocItem(pageNum) {
+      document.querySelectorAll(".toc-row").forEach(row => {
+        row.classList.remove("toc-item-active");
+      });
+      let targetRow = document.querySelector(`.toc-row[data-page="${pageNum}"]`);
+      if (targetRow) {
+        targetRow.classList.add("toc-item-active");
+        let parent = targetRow.parentElement;
+        while (parent && parent !== tocListContainer) {
+          if (parent.classList.contains("toc-children-ul")) {
+            parent.classList.remove("hidden");
+            const chevron = parent.parentElement.querySelector(".toc-toggle-btn");
+            if (chevron) chevron.innerHTML = '▼';
+          }
+          parent = parent.parentElement;
+        }
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // 5. LOAD PDF DOCUMENT & RENDER
+    async function loadPdfDocument(manual) {
+      pdfLoadingIndicator.classList.remove("hidden");
+      currentDocTitle.textContent = manual.title;
+      greetingModuleName.textContent = manual.title;
+
+      try {
+        let pdfSource = manual.pdfUrl || `/api/manuals/${manual.id}/pdf`;
+        if (manual.fileData) {
+          pdfSource = { data: manual.fileData };
+        }
+
+        const loadingTask = pdfjsLib.getDocument(pdfSource);
+        state.currentPdfDoc = await loadingTask.promise;
+        state.totalPages = state.currentPdfDoc.numPages;
+        totalPagesSpan.textContent = state.totalPages;
+        pageNumberInput.max = state.totalPages;
+
+        let outlineTree = [];
+
+        // If manual already has parsed/AI TOC from backend metadata, USE IT DIRECTLY!
+        if (manual.toc && manual.toc.length > 0) {
+          outlineTree = manual.toc;
+        } else {
+          try {
+            const rawOutline = await state.currentPdfDoc.getOutline();
+            if (rawOutline && rawOutline.length > 0) {
+              outlineTree = await parsePdfOutlineRecursive(rawOutline, 0);
+            }
+          } catch (err) {}
+        }
+
+        if (!outlineTree || outlineTree.length === 0) {
+          const step = Math.max(1, Math.floor(state.totalPages / 8));
+          for (let p = 1; p <= state.totalPages; p += step) {
+            outlineTree.push({ title: `第 ${p} 页 索引章节`, page: p, level: 0, children: [] });
+          }
+        }
+
+        state.hierarchicalOutline = outlineTree;
+        renderHierarchicalOutline(state.hierarchicalOutline, tocFilterInput.value);
+
+        await renderPdfPage(state.currentPage);
+      } catch (err) {
+        console.error("PDF load error:", err);
+        pdfLoadingIndicator.classList.add("hidden");
+        const ctx = pdfRenderCanvas.getContext('2d');
+        pdfRenderCanvas.width = 600;
+        pdfRenderCanvas.height = 400;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, 600, 400);
+        ctx.fillStyle = "#0EA5E9";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText(`手册 《${manual.title}》 正在准备中`, 40, 160);
+        ctx.fillStyle = "#64748B";
+        ctx.font = "13px sans-serif";
+        ctx.fillText("请在左侧目录点击任意章节开始阅读", 40, 200);
+      }
+    }
+
+    async function renderPdfPage(pageNum) {
+      if (!state.currentPdfDoc) return;
+      
+      const scrollContainer = document.getElementById("pdfViewerScrollContainer");
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+      }
+      if (pageNum < 1) pageNum = 1;
+      if (pageNum > state.totalPages) pageNum = state.totalPages;
+
+      state.currentPage = pageNum;
+      pageNumberInput.value = pageNum;
+      prevPageBtn.disabled = pageNum <= 1;
+      nextPageBtn.disabled = pageNum >= state.totalPages;
+
+      pdfLoadingIndicator.classList.remove("hidden");
+
+      try {
+        const page = await state.currentPdfDoc.getPage(pageNum);
+        const scale = (state.zoomLevel / 100) * 1.5;
+        const viewport = page.getViewport({ scale: scale });
+
+        const widthPx = `${Math.floor(viewport.width)}px`;
+        const heightPx = `${Math.floor(viewport.height)}px`;
+
+        // 1. Lock exact dimensions on canvasWrapper to prevent displacement
+        const canvasWrapper = document.getElementById("canvasWrapper");
+        if (canvasWrapper) {
+          canvasWrapper.style.width = widthPx;
+          canvasWrapper.style.height = heightPx;
+          canvasWrapper.style.minWidth = widthPx;
+          canvasWrapper.style.minHeight = heightPx;
+          canvasWrapper.style.setProperty('--scale-factor', viewport.scale);
+        }
+
+        // 2. Setup Canvas
+        pdfRenderCanvas.width = viewport.width;
+        pdfRenderCanvas.height = viewport.height;
+        pdfRenderCanvas.style.width = widthPx;
+        pdfRenderCanvas.style.height = heightPx;
+
+        const ctx = pdfRenderCanvas.getContext('2d');
+        ctx.clearRect(0, 0, pdfRenderCanvas.width, pdfRenderCanvas.height);
+
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+
+        if (state.renderTask) {
+          state.renderTask.cancel();
+        }
+        state.renderTask = page.render(renderContext);
+        await state.renderTask.promise;
+
+        // 3. Render TextLayer (enables text selection, copying, and text clicking)
+        try {
+          const textLayerDiv = document.getElementById("textLayer");
+          if (textLayerDiv) {
+            textLayerDiv.innerHTML = "";
+            textLayerDiv.style.width = widthPx;
+            textLayerDiv.style.height = heightPx;
+            textLayerDiv.style.setProperty('--scale-factor', viewport.scale);
+
+            const textContent = await page.getTextContent();
+            if (pdfjsLib.renderTextLayer) {
+              const textTask = pdfjsLib.renderTextLayer({
+                textContentSource: textContent,
+                textContent: textContent,
+                container: textLayerDiv,
+                viewport: viewport,
+                textDivs: []
+              });
+              if (textTask && textTask.promise) {
+                await textTask.promise;
+              }
+            } else if (pdfjsLib.TextLayer) {
+              const tl = new pdfjsLib.TextLayer({
+                textContentSource: textContent,
+                container: textLayerDiv,
+                viewport: viewport
+              });
+              await tl.render();
+            }
+          }
+        } catch (textErr) {
+          console.warn("Text layer render error:", textErr);
+        }
+
+        // 4. Render AnnotationLayer (interactive hyperlinks)
+        try {
+          const annotationLayerDiv = document.getElementById("annotationLayer");
+          if (annotationLayerDiv) {
+            annotationLayerDiv.innerHTML = "";
+            annotationLayerDiv.style.width = widthPx;
+            annotationLayerDiv.style.height = heightPx;
+            annotationLayerDiv.style.setProperty('--scale-factor', viewport.scale);
+
+            const annotations = await page.getAnnotations({ intent: "display" });
+            if (annotations && annotations.length > 0) {
+              // Standard PDF.js AnnotationLayer
+              if (pdfjsLib.AnnotationLayer && typeof pdfjsLib.AnnotationLayer.render === 'function') {
+                try {
+                  pdfjsLib.AnnotationLayer.render({
+                    viewport: viewport.clone({ dontFlip: true }),
+                    div: annotationLayerDiv,
+                    annotations: annotations,
+                    page: page,
+                    linkService: {
+                      getDestinationHash: () => "#",
+                      getAnchorUrl: () => "#",
+                      setHash: () => {},
+                      executeNamedAction: () => {},
+                      addLinkAttributes: (element, url, newWindow) => {
+                        element.href = url || "#";
+                        if (url) {
+                          element.target = "_blank";
+                          element.rel = "noopener noreferrer nofollow";
+                        }
+                      },
+                      goToDestination: async (dest) => {
+                        const targetPage = await resolveOutlineDestination(dest);
+                        if (targetPage && targetPage !== state.currentPage) {
+                          await renderPdfPage(targetPage);
+                          showToast(`已通过超链接跳转至第 ${targetPage} 页`, "info");
+                        }
+                      }
+                    }
+                  });
+                } catch (layerErr) {
+                  console.warn("pdfjsLib.AnnotationLayer.render error:", layerErr);
+                }
+              }
+
+              // Guaranteed Overlay Fallback: Ensure every single link annotation is 100% clickable with exact pixel coordinates
+              annotations.forEach((annot) => {
+                if (annot.subtype === "Link" && annot.rect && Array.isArray(annot.rect)) {
+                  const viewRect = viewport.convertToViewportRectangle(annot.rect);
+                  const left = Math.min(viewRect[0], viewRect[2]);
+                  const top = Math.min(viewRect[1], viewRect[3]);
+                  const width = Math.abs(viewRect[2] - viewRect[0]);
+                  const height = Math.abs(viewRect[3] - viewRect[1]);
+
+                  if (width > 0 && height > 0) {
+                    const linkEl = document.createElement("a");
+                    linkEl.className = "pdf-interactive-link";
+                    linkEl.style.left = `${left}px`;
+                    linkEl.style.top = `${top}px`;
+                    linkEl.style.width = `${width}px`;
+                    linkEl.style.height = `${height}px`;
+
+                    if (annot.url) {
+                      linkEl.href = annot.url;
+                      linkEl.target = "_blank";
+                      linkEl.rel = "noopener noreferrer nofollow";
+                      linkEl.title = `外部链接: ${annot.url}`;
+                    } else if (annot.dest) {
+                      linkEl.href = "#";
+                      linkEl.title = "点击跳转至目标章节";
+                      linkEl.addEventListener("click", async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const targetPage = await resolveOutlineDestination(annot.dest);
+                        if (targetPage && targetPage !== state.currentPage) {
+                          await renderPdfPage(targetPage);
+                          showToast(`已通过目录超链接跳转至第 ${targetPage} 页`, "info");
+                        }
+                      });
+                    }
+                    annotationLayerDiv.appendChild(linkEl);
+                  }
+                }
+              });
+            }
+          }
+        } catch (annotErr) {
+          console.warn("Annotation layer render error:", annotErr);
+        }
+
+        pdfLoadingIndicator.classList.add("hidden");
+
+        pdfRenderCanvas.classList.remove("highlight-flash");
+        void pdfRenderCanvas.offsetWidth;
+        pdfRenderCanvas.classList.add("highlight-flash");
+
+        setActiveTocItem(pageNum);
+      } catch (err) {
+        if (err.name !== 'RenderingCancelledException') {
+          console.error("Render error:", err);
+        }
+        pdfLoadingIndicator.classList.add("hidden");
+      }
+    }
+
+    // 6. SWITCH VIEWS
+    function switchToReader(manualId, targetPage = 1, updateHistory = true) {
+      state.currentView = "reader";
+      state.activeManualId = manualId;
+      state.currentPage = targetPage;
+
+      homeView.classList.add("hidden");
+      
+      readerView.classList.remove("hidden");
+
+      readerModuleSelect.value = manualId;
+      const mod = state.manualsList.find(m => m.id === manualId) || state.manualsList[0];
+      if (mod) {
+        loadPdfDocument(mod);
+      }
+
+      // Update URL with manual slug and page hierarchy
+      if (updateHistory) {
+        const slug = mod ? mod.id : manualId;
+        const targetUrl = targetPage > 1 ? `/manuals/${slug}?page=${targetPage}` : `/manuals/${slug}`;
+        if (window.location.pathname !== `/manuals/${slug}` && window.location.pathname !== `/manual/${slug}`) {
+          window.history.pushState({ view: "reader", manualId: slug, page: targetPage }, "", targetUrl);
+        } else {
+          window.history.replaceState({ view: "reader", manualId: slug, page: targetPage }, "", targetUrl);
+        }
+      }
+    }
+
+    function switchToHome(updateHistory = true) {
+      state.currentView = "home";
+      readerView.classList.add("hidden");
+      
+      homeView.classList.remove("hidden");
+      if (updateHistory && window.location.pathname !== "/") {
+        window.history.pushState({ view: "home" }, "", "/");
+      }
+    }
+
+    function navigateByUrl(updateHistory = false) {
+      const path = window.location.pathname.replace(/^\/|\/$/g, '');
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetPage = parseInt(urlParams.get("page") || "1") || 1;
+      const parts = path.split('/');
+
+      if (parts.length >= 2 && (parts[0] === 'manual' || parts[0] === 'manuals') && parts[1]) {
+        const manualId = decodeURIComponent(parts[1]);
+        switchToReader(manualId, targetPage, updateHistory);
+      } else if (parts.length === 1 && parts[0] && parts[0] !== 'home' && parts[0] !== 'admin') {
+        const potentialManual = state.manualsList.find(m => m.id === parts[0]);
+        if (potentialManual) {
+          switchToReader(potentialManual.id, targetPage, updateHistory);
+        } else {
+          switchToHome(updateHistory);
+        }
+      } else {
+        switchToHome(updateHistory);
+      }
+    }
+
+    
+
+    // 7. GLOBAL SEARCH
+    async function executeGlobalSearch(keyword) {
+      if (!keyword || !keyword.trim()) return;
+      keyword = keyword.trim();
+
+      searchResultsSection.classList.remove("hidden");
+      resultsList.innerHTML = `
+        <div class="col-span-2 p-6 text-center text-slate-500 font-mono-code flex items-center justify-center gap-2">
+          <div class="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+          正在跨手册执行 BM25 混合检索...
+        </div>
+      `;
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: keyword, top_k: 8 })
+        });
+        if (res.ok) {
+          const results = await res.json();
+          renderSearchResults(results, keyword);
+          return;
+        }
+      } catch (err) {}
+      renderSearchResults([], keyword);
+    }
+
+    function renderSearchResults(results, keyword) {
+      resultsList.innerHTML = "";
+      resultsCount.textContent = results.length;
+
+      if (!results || results.length === 0) {
+        resultsList.innerHTML = `
+          <div class="col-span-2 p-8 text-center bg-white rounded-3xl border border-sky-100 shadow-2xs">
+            <p class="text-slate-700 text-sm font-medium">全站手册中暂未检索到与 “${keyword}” 相关的段落。</p>
+            <p class="text-xs text-slate-400 mt-1">您可以尝试使用通用航空缩写（如 AGM-65, HUD, 冷启动）或在管理后台上传更多机型手册。</p>
+          </div>
+        `;
+        return;
+      }
+
+      results.forEach(res => {
+        const item = document.createElement("div");
+        item.className = "p-4 bg-white border border-sky-100 hover:border-sky-300 rounded-2xl space-y-2 transition shadow-2xs flex flex-col justify-between";
+        item.innerHTML = `
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="px-2.5 py-0.5 rounded-full font-mono-code font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                ${res.manual_title || '手册命中'}
+              </span>
+              <span class="text-slate-400 font-mono-code">第 ${res.page} 页 · 相关度: ${res.score || '高'}</span>
+            </div>
+            <p class="text-xs text-slate-600 font-sans bg-[#F8FBFE] p-2.5 rounded-xl border border-sky-100 leading-relaxed">
+              ${res.snippet}
+            </p>
+          </div>
+          <div class="pt-2 flex justify-end">
+            <button class="jump-to-manual-btn px-3 py-1 bg-sky-50 hover:bg-sky-500 text-sky-700 hover:text-white rounded-full text-xs font-semibold transition flex items-center gap-1 shadow-2xs"
+                    data-id="${res.manual_id}" data-page="${res.page}">
+              穿透跳转至第 ${res.page} 页
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        `;
+        resultsList.appendChild(item);
+      });
+
+      document.querySelectorAll(".jump-to-manual-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const modId = btn.getAttribute("data-id");
+          const pg = parseInt(btn.getAttribute("data-page"));
+          switchToReader(modId, pg);
+        });
+      });
+
+      searchResultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 8. AI COPILOT CHAT (DeepSeek V4.1-Flash Instant Non-Thinking / Thinking Mode & Pre-Trained RAG QA Cache)
+    const copilotThinkingToggle = document.getElementById("copilotThinkingToggle");
+    const copilotModeHint = document.getElementById("copilotModeHint");
+    if (copilotThinkingToggle && copilotModeHint) {
+      copilotThinkingToggle.addEventListener("change", () => {
+        if (copilotThinkingToggle.checked) {
+          copilotModeHint.textContent = "🧠 V4 深度思考已开启";
+          copilotModeHint.className = "text-[10px] font-mono-code text-amber-600 font-semibold";
+        } else {
+          copilotModeHint.textContent = "⚡ V4.1-Flash 极速直出";
+          copilotModeHint.className = "text-[10px] font-mono-code text-emerald-600 font-semibold";
+        }
+      });
+    }
+
+    async function sendAiChatMessage() {
+      const query = aiChatInput.value.trim();
+      if (!query) return;
+
+      const thinkingMode = (copilotThinkingToggle && copilotThinkingToggle.checked) ? "enabled" : "disabled";
+
+      appendMessage("user", query);
+      aiChatInput.value = "";
+
+      const streamMsg = createStreamMessageBubble();
+      aiChatHistory.appendChild(streamMsg.wrapper);
+      aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+      let streamedAnswer = "";
+      let streamedReasoning = "";
+
+      try {
+        const res = await fetch('/api/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            manual_id: state.activeManualId,
+            query: query,
+            thinking_mode: thinkingMode
+          })
+        });
+
+        if (res.ok && res.body) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith("data:")) continue;
+              const payload = trimmed.substring(5).trim();
+              if (payload === "[DONE]") {
+                streamMsg.finish();
+                break;
+              }
+
+              try {
+                const data = JSON.parse(payload);
+                if (data.type === "retrieval_status") {
+                  streamMsg.updateRetrieval(data);
+                } else if (data.type === "kv_cache") {
+                  streamMsg.updateKvCache(data);
+                } else if (data.type === "reasoning" && data.delta) {
+                  streamedReasoning += data.delta;
+                  streamMsg.updateReasoning(streamedReasoning);
+                  aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+                } else if (data.type === "delta" && data.delta) {
+                  streamedAnswer += data.delta;
+                  streamMsg.updateAnswer(streamedAnswer);
+                  aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+                }
+              } catch (e) {}
+            }
+          }
+          if (streamedAnswer.trim()) {
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Streaming chat error, falling back:", err);
+      }
+
+      // Fallback to standard chat
+      try {
+        const fallbackRes = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            manual_id: state.activeManualId,
+            query: query,
+            thinking_mode: thinkingMode
+          })
+        });
+        if (streamMsg.wrapper.parentElement) streamMsg.wrapper.remove();
+        if (fallbackRes.ok) {
+          const data = await fallbackRes.json();
+          appendMessage("assistant", data.answer);
+          return;
+        }
+      } catch (e) {}
+
+      if (streamMsg.wrapper.parentElement) streamMsg.wrapper.remove();
+      appendMessage("assistant", `已针对当前手册为您执行离线检索：\n\n• 当前手册共 ${state.totalPages} 页，左侧多级目录已全部提取就绪。\n• 您可以在左侧直接使用层级目录点击跳转，或在上方输入框检索 [P. ${state.currentPage}]。`);
+    }
+
+    function createStreamMessageBubble() {
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex gap-2.5 items-start";
+
+      const avatar = document.createElement("div");
+      avatar.className = "w-7 h-7 rounded-xl flex items-center justify-center font-bold shrink-0 text-xs shadow-2xs bg-sky-100 text-sky-700";
+      avatar.textContent = "AI";
+
+      const contentBox = document.createElement("div");
+      contentBox.className = "rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] shadow-2xs bg-[#F5F9FD] border border-sky-100 text-slate-800 rounded-tl-xs";
+
+      // Status header
+      const statusEl = document.createElement("div");
+      statusEl.className = "mb-2 flex flex-wrap gap-1 items-center";
+      statusEl.innerHTML = `<span class="inline-flex items-center gap-1.5 text-[11px] font-mono-code text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200/60"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>正在匹配手册切片...</span>`;
+
+      // Reasoning box (for DeepSeek V4 Thinking Mode)
+      const reasoningBox = document.createElement("details");
+      reasoningBox.className = "mb-2 text-[11px] bg-slate-100/90 text-slate-600 rounded-lg p-2 border border-slate-200/80 hidden";
+      reasoningBox.open = true;
+      reasoningBox.innerHTML = `<summary class="font-bold cursor-pointer text-slate-500 hover:text-slate-700 select-none">💭 DeepSeek V4 战术思考链</summary><div class="reasoning-content mt-1.5 font-mono-code whitespace-pre-wrap leading-relaxed text-slate-600"></div>`;
+
+      // Main answer area
+      const answerEl = document.createElement("div");
+      answerEl.className = "main-answer leading-relaxed";
+
+      contentBox.appendChild(statusEl);
+      contentBox.appendChild(reasoningBox);
+      contentBox.appendChild(answerEl);
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(contentBox);
+
+      function bindCitations(container) {
+        container.querySelectorAll(".inline-citation-tag").forEach(tag => {
+          tag.onclick = (e) => {
+            e.stopPropagation();
+            const pg = parseInt(tag.getAttribute("data-page"));
+            renderPdfPage(pg);
+            showToast(`已为您联动翻阅至第 ${pg} 页真实 PDF`, "success");
+          };
+        });
+      }
+
+      return {
+        wrapper: wrapper,
+        updateRetrieval: (data) => {
+          const pagesStr = data.top_pages && data.top_pages.length > 0 ? `[P. ${data.top_pages.join(', P. ')}]` : '核心章节';
+          const modelLabel = data.model || 'deepseek-flash';
+          const modeLabel = data.thinking_mode === 'enabled' ? '🧠 V4思考' : '⚡ V4极速直出';
+          if (data.cache_hit) {
+            statusEl.innerHTML = `<span class="inline-flex items-center gap-1.5 text-[10px] font-mono-code text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>⚡ 预训练战术问答库命中 (${data.elapsed_ms}ms · ${pagesStr})</span>`;
+          } else {
+            statusEl.innerHTML = `<span class="inline-flex items-center gap-1.5 text-[10px] font-mono-code text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>${modeLabel} (${modelLabel} · 检索 ${data.elapsed_ms}ms · ${pagesStr})</span>`;
+          }
+        },
+        updateKvCache: (data) => {
+          if (data.hit_tokens > 0) {
+            const badge = document.createElement("span");
+            badge.className = "inline-flex items-center text-[10px] font-mono-code text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-md";
+            badge.textContent = `💾 V4 硬盘缓存命中 ${data.hit_tokens} tokens`;
+            statusEl.appendChild(badge);
+          }
+        },
+        updateReasoning: (rawReasoning) => {
+          reasoningBox.classList.remove("hidden");
+          const rc = reasoningBox.querySelector(".reasoning-content");
+          if (rc) rc.textContent = rawReasoning;
+        },
+        updateAnswer: (rawText) => {
+          let formattedHtml = rawText.replace(/\[P\.\s*(\d+)\]/g, (match, p1) => {
+            return `<button class="inline-citation-tag px-2 py-0.5 mx-0.5 rounded-lg bg-sky-200/70 hover:bg-sky-500 hover:text-white text-sky-800 font-mono-code font-bold transition cursor-pointer" data-page="${p1}">[P. ${p1}]</button>`;
+          });
+          formattedHtml = formattedHtml.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>');
+          formattedHtml = formattedHtml.replace(/\n/g, '<br>');
+          answerEl.innerHTML = formattedHtml;
+          bindCitations(answerEl);
+        },
+        finish: () => {}
+      };
+    }
+
+    function appendMessage(role, text) {
+      const wrapper = document.createElement("div");
+      wrapper.className = `flex gap-2.5 items-start ${role === 'user' ? 'flex-row-reverse' : ''}`;
+
+      const avatar = document.createElement("div");
+      avatar.className = `w-7 h-7 rounded-xl flex items-center justify-center font-bold shrink-0 text-xs shadow-2xs ${role === 'user' ? 'bg-sky-600 text-white' : 'bg-sky-100 text-sky-700'}`;
+      avatar.textContent = role === 'user' ? '我' : 'AI';
+
+      const contentBox = document.createElement("div");
+      contentBox.className = `rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] shadow-2xs ${role === 'user' ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-xs' : 'bg-[#F5F9FD] border border-sky-100 text-slate-800 rounded-tl-xs'}`;
+
+      let formattedHtml = text.replace(/\[P\.\s*(\d+)\]/g, (match, p1) => {
+        return `<button class="inline-citation-tag px-2 py-0.5 mx-0.5 rounded-lg bg-sky-200/70 hover:bg-sky-500 hover:text-white text-sky-800 font-mono-code font-bold transition cursor-pointer" data-page="${p1}">[P. ${p1}]</button>`;
+      });
+
+      formattedHtml = formattedHtml.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>');
+      formattedHtml = formattedHtml.replace(/\n/g, '<br>');
+
+      contentBox.innerHTML = formattedHtml;
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(contentBox);
+      aiChatHistory.appendChild(wrapper);
+
+      aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+      contentBox.querySelectorAll(".inline-citation-tag").forEach(tag => {
+        tag.addEventListener("click", () => {
+          const pg = parseInt(tag.getAttribute("data-page"));
+          renderPdfPage(pg);
+          showToast(`已为您联动翻阅至第 ${pg} 页真实 PDF`, "success");
+        });
+      });
+    }
+
+    function appendTypingIndicator() {
+      const id = "typing-" + Date.now();
+      const div = document.createElement("div");
+      div.id = id;
+      div.className = "flex gap-2.5 items-start";
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold shrink-0 text-xs">AI</div>
+        <div class="bg-[#F5F9FD] border border-sky-100 rounded-2xl px-4 py-2 text-slate-400 flex items-center gap-1.5 shadow-2xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce" style="animation-delay: 0.15s"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce" style="animation-delay: 0.3s"></span>
+          <span class="text-[11px] font-mono-code ml-1 text-slate-500">正在分析检索手册...</span>
+        </div>
+      `;
+      aiChatHistory.appendChild(div);
+      aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+      return id;
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `px-4 py-2.5 rounded-2xl shadow-lg text-xs font-medium flex items-center gap-2 border transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${
+        type === 'success' ? 'bg-white text-sky-800 border-sky-200' : 
+        type === 'error' ? 'bg-white text-rose-700 border-rose-200' : 'bg-white text-slate-700 border-slate-200'
+      }`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${type === 'success' ? 'bg-sky-500' : type === 'error' ? 'bg-rose-500' : 'bg-slate-400'}"></span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      });
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // 10. EVENT LISTENERS SETUP
+    function initEvents() {
+      // Views navigation
+      navHomeBtn.addEventListener("click", () => switchToHome(true));
+      viewHomeBtn.addEventListener("click", () => switchToHome(true));
+      viewReaderBtn.addEventListener("click", () => {
+        if (!state.activeManualId && state.manualsList.length > 0) {
+          state.activeManualId = state.manualsList[0].id;
+        }
+        if (state.activeManualId) {
+          switchToReader(state.activeManualId, state.currentPage, true);
+        }
+      });
+
+      // Quick TOC Filter Bar
+      tocFilterInput.addEventListener("input", (e) => {
+        renderHierarchicalOutline(state.hierarchicalOutline, e.target.value);
+      });
+
+      // Expand / Collapse
+      expandAllTocBtn.addEventListener("click", () => {
+        document.querySelectorAll(".toc-children-ul").forEach(ul => ul.classList.remove("hidden"));
+        document.querySelectorAll(".toc-toggle-btn").forEach(btn => btn.innerHTML = '▼');
+      });
+      collapseAllTocBtn.addEventListener("click", () => {
+        document.querySelectorAll(".toc-children-ul").forEach(ul => ul.classList.add("hidden"));
+        document.querySelectorAll(".toc-toggle-btn").forEach(btn => btn.innerHTML = '▶');
+      });
+
+      if (openTocBarBtn) {
+        openTocBarBtn.addEventListener("click", () => tocSidebar.classList.toggle("hidden"));
+      }
+      if (toggleTocBtn) {
+        toggleTocBtn.addEventListener("click", () => tocSidebar.classList.add("hidden"));
+      }
+
+      globalSearchSubmitBtn.addEventListener("click", () => executeGlobalSearch(globalSearchInput.value));
+      globalSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") executeGlobalSearch(globalSearchInput.value);
+      });
+      clearSearchBtn.addEventListener("click", () => {
+        searchResultsSection.classList.add("hidden");
+        globalSearchInput.value = "";
+      });
+      document.querySelectorAll(".quick-tag").forEach(tag => {
+        tag.addEventListener("click", () => {
+          const q = tag.getAttribute("data-query");
+          globalSearchInput.value = q;
+          executeGlobalSearch(q);
+        });
+      });
+
+      document.querySelectorAll(".quick-preset-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          aiChatInput.value = btn.textContent;
+          sendAiChatMessage();
+        });
+      });
+
+      readerModuleSelect.addEventListener("change", (e) => {
+        switchToReader(e.target.value, 1);
+      });
+
+      prevPageBtn.addEventListener("click", () => {
+        if (state.currentPage > 1) renderPdfPage(state.currentPage - 1);
+      });
+      nextPageBtn.addEventListener("click", () => {
+        if (state.currentPage < state.totalPages) renderPdfPage(state.currentPage + 1);
+      });
+
+      // Global Keyboard Navigation (ArrowLeft / ArrowRight / PageUp / PageDown)
+      window.addEventListener("keydown", (e) => {
+        // Only trigger when reader view is active
+        if (state.currentView !== "reader") return;
+
+        // Do not intercept when typing in text inputs, textareas, selects, or editable elements
+        const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : "";
+        const isTyping = activeTag === "INPUT" || activeTag === "TEXTAREA" || activeTag === "SELECT" || (document.activeElement && document.activeElement.isContentEditable);
+        if (isTyping) return;
+
+        // Do not intercept if admin modal is open
+        
+
+        // Up / Down arrow keys control PDF vertical scrolling
+        const scrollBox = document.getElementById("pdfViewerScrollContainer");
+        if (e.key === "ArrowUp" || e.key === "Up") {
+          e.preventDefault();
+          if (scrollBox) scrollBox.scrollBy({ top: -140, behavior: 'smooth' });
+        } else if (e.key === "ArrowDown" || e.key === "Down") {
+          e.preventDefault();
+          if (scrollBox) scrollBox.scrollBy({ top: 140, behavior: 'smooth' });
+        } else if (e.key === "ArrowLeft" || e.key === "Left" || e.key === "PageUp") {
+          e.preventDefault();
+          if (state.currentPage > 1) {
+            renderPdfPage(state.currentPage - 1);
+          }
+        } else if (e.key === "ArrowRight" || e.key === "Right" || e.key === "PageDown") {
+          e.preventDefault();
+          if (state.currentPage < state.totalPages) {
+            renderPdfPage(state.currentPage + 1);
+          }
+        }
+      });
+      pageNumberInput.addEventListener("change", (e) => {
+        let p = parseInt(e.target.value);
+        if (isNaN(p) || p < 1) p = 1;
+        if (p > state.totalPages) p = state.totalPages;
+        renderPdfPage(p);
+      });
+
+      zoomInBtn.addEventListener("click", () => {
+        if (state.zoomLevel < 200) {
+          state.zoomLevel += 20;
+          zoomLevelSpan.textContent = state.zoomLevel + "%";
+          renderPdfPage(state.currentPage);
+        }
+      });
+      zoomOutBtn.addEventListener("click", () => {
+        if (state.zoomLevel > 60) {
+          state.zoomLevel -= 20;
+          zoomLevelSpan.textContent = state.zoomLevel + "%";
+          renderPdfPage(state.currentPage);
+        }
+      });
+
+      // Fit to Height Button Event Handler
+      const fitWidthBtn = document.getElementById("fitWidthBtn");
+      if (fitWidthBtn) {
+        fitWidthBtn.addEventListener("click", async () => {
+          if (!state.currentPdfDoc) return;
+          try {
+            const scrollBox = document.getElementById("pdfViewerScrollContainer");
+            const containerWidth = (scrollBox ? scrollBox.clientWidth : window.innerWidth) - 48;
+            const page = await state.currentPdfDoc.getPage(state.currentPage);
+            const unscaledViewport = page.getViewport({ scale: 1.0 });
+            const targetScale = containerWidth / unscaledViewport.width;
+            state.zoomLevel = Math.max(30, Math.min(300, Math.round((targetScale / 1.5) * 100)));
+            zoomLevelSpan.textContent = state.zoomLevel + "%";
+            await renderPdfPage(state.currentPage);
+            if (scrollBox) scrollBox.scrollTop = 0;
+            showToast(`已自动缩放至与视窗等宽 (${state.zoomLevel}%)`, "info");
+          } catch (err) {
+            console.error("Fit width error:", err);
+          }
+        });
+      }
+
+      const fitHeightBtn = document.getElementById("fitHeightBtn");
+      if (fitHeightBtn) {
+        fitHeightBtn.addEventListener("click", async () => {
+          if (!state.currentPdfDoc) return;
+          try {
+            const scrollBox = document.getElementById("pdfViewerScrollContainer");
+            const containerHeight = (scrollBox ? scrollBox.clientHeight : window.innerHeight) - 36;
+            const page = await state.currentPdfDoc.getPage(state.currentPage);
+            const unscaledViewport = page.getViewport({ scale: 1.0 });
+            const targetScale = containerHeight / unscaledViewport.height;
+            state.zoomLevel = Math.max(30, Math.min(300, Math.round((targetScale / 1.5) * 100)));
+            zoomLevelSpan.textContent = state.zoomLevel + "%";
+            await renderPdfPage(state.currentPage);
+            if (scrollBox) scrollBox.scrollTop = 0;
+            showToast(`已自动缩放至与视窗等高 (${state.zoomLevel}%)`, "info");
+          } catch (err) {
+            console.error("Fit height error:", err);
+          }
+        });
+      }
+
+      toggleAiDrawerBtn.addEventListener("click", () => aiCopilotDrawer.classList.toggle("hidden"));
+      closeAiDrawerBtn.addEventListener("click", () => aiCopilotDrawer.classList.add("hidden"));
+
+      aiChatSendBtn.addEventListener("click", sendAiChatMessage);
+      aiChatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendAiChatMessage();
+        }
+      });
+
+      refreshManualsBtn.addEventListener("click", () => {
+        loadManualsFromBackend();
+        showToast("已刷新手册库列表", "info");
+      });
+    }
+
+    window.addEventListener("popstate", (e) => {
+      navigateByUrl(false);
+    });
+
+    window.onload = async () => {
+      initEvents();
+      await loadManualsFromBackend();
+      navigateByUrl(false);
+    };
+  </script>
+</body>
+</html>

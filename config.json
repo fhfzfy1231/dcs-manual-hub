@@ -1,0 +1,9 @@
+{
+  "api_key": "",
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "thinking_mode": "disabled",
+  "reasoning_effort": "low",
+  "provider": "deepseek",
+  "admin_password": "admin"
+}

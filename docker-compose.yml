@@ -1,0 +1,19 @@
+services:
+  dcs-manual-hub:
+    build: .
+    image: dcs-manual-hub:latest
+    container_name: dcs-manual-hub
+    restart: unless-stopped
+    ports:
+      # 对外暴露 8093 端口
+      - "8093:8000"
+    volumes:
+      # 核心直通挂载：宿主机文件覆盖即刻全局生效，无需重新漫长构建镜像！
+      - ./app.py:/app/app.py
+      - ./static:/app/static
+      # 持久化存储 PDF 知识库与解析好的目录索引
+      - ./manuals:/app/manuals
+      # 持久化存储管理员密码与全局大模型配置
+      - ./config.json:/app/config.json
+    environment:
+      - TZ=Asia/Shanghai

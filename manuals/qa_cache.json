@@ -1,0 +1,296 @@
+{
+  "global:冷舱启动步骤": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "冷舱启动步骤",
+    "keywords": [
+      "冷舱",
+      "启动",
+      "开车",
+      "发动机启动",
+      "检查单"
+    ],
+    "answer": "F-16C 飞行员冷舱启动标准战术流程（检查单）：\n\n1. **电源系统初始化**：\n   • 将座舱左侧 **MAIN PWR** 开关切至 **BATT** 检查电瓶电压，随后推至 **MAIN PWR** 档位 [P. 33]。\n   • 检查 FLCS 电源指示灯点亮，进行飞行控制系统自检。\n\n2. **喷气燃料启动机 (JFS) 启动**：\n   • 将 **JFS** 启动电门向前扳至 **START 2** 档位（双储压罐模式），观察操纵面板上的 **JFS RUN** 绿色指示灯常亮 [P. 35]。\n\n3. **发动机供油点火**：\n   • 密切观察仪表板中央的 **RPM (发动机转速表)**，当转速达到 **20%** 时，将油门杆防错锁扣抬起，从 **OFF** 挡位推进至 **IDLE (怠速)** 挡位 [P. 36]。\n   • 监控 **FTIT (风扇涡轮进气温度)** 升温过程，确保温度在正常限制值以内。\n\n4. **发电机并网与自检**：\n   • 转速达到 **60%~70%** 后，主发电机自动并网，JFS 开关自动跳脱回中间 OFF 挡位，**SEC** 指示灯熄灭 [P. 38]。\n\n5. **全机航电系统通电**：\n   • 右侧航电面板依次开启：**MMC (模块化任务计算机)**、**ST STA (外挂电门)**、**MFD (多功能显示器)**、**UFC (通用前置控制板)**、**GPS** 与 **DL (数据链)** [P. 40]。\n\n6. **惯性导航系统 (INS) 对准**：\n   • 将右侧控制台 **INS 旋钮** 旋至 **NORM** 开始标准校准；若停机坪有预存航向，可旋至 **STOR HDG** 进行快速对准 [P. 42]。\n   • 对准完成（DED 显示 RDY 闪烁）后，旋钮切至 **NAV** 档位。\n\n7. **座舱气密与弹射准备**：\n   • 放下座舱盖，将手柄扳至 LOCK 锁闭座舱并加压，拔除弹射座椅保险插销 [P. 45]。",
+    "citations": [
+      {
+        "page": 33,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "MAIN PWR 电源开关与电气系统启动流程..."
+      },
+      {
+        "page": 35,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "JFS 喷气燃料启动机操作与指示灯..."
+      },
+      {
+        "page": 36,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "油门杆从 OFF 推进至 IDLE 挡位启动条件..."
+      },
+      {
+        "page": 45,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "座舱盖密闭与弹射座椅解除保险准备..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:agm65导弹投放模式": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "AGM-65 导弹投放模式",
+    "keywords": [
+      "agm-65",
+      "agm65",
+      "小牛",
+      "幼畜",
+      "空地导弹",
+      "maverick",
+      "投放模式"
+    ],
+    "answer": "AGM-65 “幼畜” (Maverick) 空地导弹战术投放流程如下：\n\n1. **进入空地主模式**：\n   • 按下仪表板左上方主模式控制板的 **A-G (Air-to-Ground)** 按键，火控计算机切换至空地打击状态 [P. 319]。\n\n2. **武器页面选择与通电**：\n   • 在左侧或右侧 MFD 呼出 **WPN (武器)** 页面，确认选中 **AGM-65**，检查导弹陀螺加温完成，状态显示为 **RDY** [P. 319]。\n\n3. **选择瞄准子模式 (Sub-mode)**：\n   • 点击 OSB 切换引导头工作模式：\n     - **PRE (预设航路点模式)**：导弹导引头自动随动于当前活动航路点 (STPT) 或火控雷达地面目标 [P. 320]。\n     - **VIS (目视模式)**：HUD 产生随动菱形瞄准框，用于目视快速攻击视界内敌方目标 [P. 320]。\n     - **BORE (轴线模式)**：导引头锁定飞机机头轴线方向 [P. 321]。\n\n4. **目标截获与导引头跟踪**：\n   • 将 MFD 设为传感点 (SOI)，使用操纵杆上的 **Cursor Slew (雷达光标开关)** 将十字准星对准敌方地面装甲车或掩体 [P. 321]。\n   • 按下 **TMS Up (前推)** 让导弹电视/红外导引头闭锁目标，观察瞄准框闭合且视场稳定跟踪 [P. 321]。\n\n5. **武器发射**：\n   • 观察 HUD 瞄准标尺，确认处于动力射程内且出现 **IN RANGE** 投放许可提示 [P. 322]。\n   • 按住操纵杆上的 **Weapon Release (武器释放/Pickle)** 键约 1 秒发射导弹 [P. 322]。发射后即可脱离机动（发射后不管）。",
+    "citations": [
+      {
+        "page": 319,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "A-G 主模式与 AGM-65 武器页面就绪配置..."
+      },
+      {
+        "page": 320,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "AGM-65 PRE、VIS、BORE 瞄准模式切换..."
+      },
+      {
+        "page": 321,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "使用光标对准目标并按下 TMS Up 闭锁导引头..."
+      },
+      {
+        "page": 322,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "IN RANGE 射程判定与 Weapon Release 导弹发射..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:aim120中距空空导弹超视距攻击": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "AIM-120 主动雷达空空导弹超视距发射",
+    "keywords": [
+      "aim-120",
+      "aim120",
+      "amraam",
+      "超视距",
+      "中距弹",
+      "雷达导弹",
+      "空空导弹"
+    ],
+    "answer": "AIM-120 (AMRAAM) 超视距空空导弹拦截与发射流程：\n\n1. **主模式切换**：\n   • 按下操纵杆空空模式切换开关或主模式板 **A-A** 按键，火控雷达与 HUD 切换至空空格斗状态 [P. 280]。\n\n2. **武器挂载确认**：\n   • 确认 SMS 武器页面显示挂载的 **AIM-120** 并处于 RDY 就绪状态 [P. 281]。\n\n3. **雷达搜索与目标截获**：\n   • 在 FCR (火控雷达) 页面设置搜索范围（推荐 40nm 或 80nm，方位角 60°，扫描层数 4 棒） [P. 282]。\n   • 将雷达光标移至目标雷达回波上，**TMS Up (前推)** 建立单目标跟踪 (STT) 或使用 TWS 模式跟踪 [P. 283]。\n\n4. **动态发射区域 (DLZ) 判读**：\n   • 观察 HUD 右侧的动态射程标尺：\n     - **Raero**：导弹空气动力学最大滑翔极限。\n     - **Rmax**：最大有效攻击距离。\n     - **Rne (No Escape)**：不可逃逸区，敌机即使做大过载机动也极难规避 [P. 284]。\n\n5. **导弹发射与中继制导**：\n   • 当目标符号进入发射允许范围且 HUD 出现发射提示框时，按操纵杆 **Weapon Release (Pickle)** 键发射导弹 [P. 284]。\n   • 发射后保持母机雷达跟踪，HUD 将显示 **A-倒计时**（中继雷达数据链修正时间）。倒计时归零后显示 **T-倒计时**，代表导弹自身主动导引头已开机截获目标（Pitbull / 斗牛犬状态），母机此时可自由掉头脱离 [P. 285]。",
+    "citations": [
+      {
+        "page": 280,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "A-A 主模式激活与空空火控界面..."
+      },
+      {
+        "page": 282,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "FCR 空空雷达搜索模式设置与截获..."
+      },
+      {
+        "page": 284,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "动态发射区域 DLZ (Raero, Rmax, Rne) 判读..."
+      },
+      {
+        "page": 285,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "导弹数据链中继制导与主动导引头截获状态..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:雷达模式切换与tws": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "雷达模式切换与 TWS 边扫描边跟踪",
+    "keywords": [
+      "tws",
+      "rws",
+      "雷达模式",
+      "边扫描边跟踪",
+      "fcr",
+      "火控雷达"
+    ],
+    "answer": "F-16C 雷达模式切换与 TWS (Track While Scan) 战术运用：\n\n1. **呼出雷达页面**：\n   • 在 A-A 主模式下，在 MFD 上选择 **FCR (Fire Control Radar)** [P. 240]。\n\n2. **切换为 TWS 模式**：\n   • 点击 MFD 左上角 **OSB 1**，当前雷达搜索模式会在 **RWS (边搜索边测距)**、**TWS (边扫描边跟踪)** 和 **VS (速度搜索)** 之间循环切换 [P. 241]。\n\n3. **TWS 模式核心特性**：\n   • 在维持全视场持续扇面扫描的同时，计算机自动跟踪多达 10 个空中目标航迹并预估航向航速 [P. 242]。\n   • **战术隐身优势**：向目标发射 AIM-120 导弹期间，目标机载 RWR 不会收到连续波硬锁定告警，直到导弹主动雷达近距离开机 [P. 245]。\n\n4. **目标指定与跟踪等级**：\n   • 移动雷达光标至目标方块，按 **TMS Up** 将其设为系统目标 (Track File) [P. 243]。\n   • 再次按 **TMS Up** 将其指定为主目标 (Bugged Target)，雷达将在屏幕与 HUD 上强化该目标的矢量线与射程判读 [P. 243]。\n   • 按 **TMS Right** 可在已跟踪的多个敌机目标之间快速循环轮换主攻击目标 [P. 244]。",
+    "citations": [
+      {
+        "page": 240,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "FCR 雷达系统架构与 MFD 显示布局..."
+      },
+      {
+        "page": 241,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "OSB 1 雷达子模式切换与 RWS / TWS 对比..."
+      },
+      {
+        "page": 243,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "TMS Up 指定主目标与 TMS Right 多目标轮换..."
+      },
+      {
+        "page": 245,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "TWS 模式下静默多目标攻击战术优势..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:空中加油步骤": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "空中加油步骤与就绪准备",
+    "keywords": [
+      "空中加油",
+      "受油门",
+      "加油机",
+      "air refuel",
+      "加油"
+    ],
+    "answer": "F-16C 硬管空中加油 (Air Refueling) 标准程序：\n\n1. **联络与汇合**：\n   • 通过无线电联系加油机（例如 Texaco 或 Shell），请求空中加油并获取加油机高度、航速与航向 [P. 170]。\n\n2. **打开受油口**：\n   • 在左侧副仪表板上，将 **AIR REFUEL** 拨钮向前扳至 **OPEN** 档位 [P. 171]。\n   • 此操作将打开机背受油口舱门，同时飞行控制计算机 (FLCS) 会减缓配平灵敏度，增压油箱排气并使受油系统处于就绪状态。\n\n3. **确认就绪指示灯**：\n   • 检查仪表板右侧眉梁上的 **RDY (Ready)** 蓝绿指示灯常亮 [P. 172]。\n\n4. **进位与队形保持**：\n   • 在加油机左后方建立观察位置，确认加油机放下伸缩加油管。\n   • 收到 \"Cleared to Contact\" 指令后，柔和加油门平稳移至加油机腹部正后下方 [P. 173]。\n   • 参照加油机腹部的 **PVD (指引灯阵列)** 调整相对高度与前后距离。\n\n5. **受油接通与断开**：\n   • 加油员将加油管插入 F-16 受油口后，**RDY** 灯熄灭，**AR/NWS** 绿色指示灯常亮，燃油开始注入 [P. 174]。\n   • 满油后加油机断开管线；若遇气流颠簸，可按操纵杆上的 **A/R Disconnect** 按键手动脱开。\n   • 脱离后将 **AIR REFUEL** 开关扳回 **CLOSE**，检查 RDY/DISC 指示灯熄灭 [P. 175]。",
+    "citations": [
+      {
+        "page": 170,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "空中加油战术汇合与无线电协同准备..."
+      },
+      {
+        "page": 171,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "AIR REFUEL 受油口开关控制与 FLCS 增益调整..."
+      },
+      {
+        "page": 173,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "加油机腹部 PVD 指引灯与加油位置保持..."
+      },
+      {
+        "page": 175,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "受油完成断开程序与仪表指示状态..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:进近降落与攻角控制": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "进近着陆与攻角控制",
+    "keywords": [
+      "着陆",
+      "降落",
+      "进近",
+      "攻角",
+      "aoa",
+      "起落架",
+      "减速板",
+      "接地"
+    ],
+    "answer": "F-16C 仪表进近与轻柔着陆操作规范：\n\n1. **降速与构型转换**：\n   • 进入机场五边或起落航线三边，减速至 **300 节以下**，扳下主起落架手柄 (**GEAR DOWN**) [P. 75]。\n   • 开启机尾减速板 (**SPEEDBRAKE**)，FLCS 自动转入起落降级控制律，后缘襟副翼随之放下 [P. 76]。\n\n2. **HUD 攻角指引框 (AOA Bracket) 建立**：\n   • 在 HUD 上调出绿色的飞行路径矢量标 (**FPM**) 和攻角支架 (**[ 指引框**)。\n   • 调节油门与俯仰配平，将 **FPM 准确重叠在 AOA 支架的正中央** [P. 77]。此时飞机处于标准进近攻角 **11°~13° AOA**，座舱左侧绿光攻角指数灯常亮 [P. 78]。\n\n3. **下滑道与瞄准点控制**：\n   • 使用油门控制升降率，使用操纵杆微调机头指向：将 FPM 稳稳压在跑道头接地标志线（斑马线后 300 米处） [P. 78]。\n\n4. **接地与气动减速 (Aero Braking)**：\n   • 距地面约 20 英尺时，柔和小幅拉杆拉平，主轮轻柔擦地接地 [P. 79]。\n   • 主轮接地后立即将油门收至 **IDLE** 怠速，保持机头仰角 **13° 维持抬轮姿态**进行气动减速，切忌过早将前轮砸地 [P. 79]。\n\n5. **前轮接地与刹车**：\n   • 当空速降至 **100 节** 左右时，气动升力减退，前轮平稳自然贴地。\n   • 空速低于 **60 节** 时接通前轮转向 (**NWS**)，踩刹车滑跑减速并脱离跑道 [P. 80]。",
+    "citations": [
+      {
+        "page": 75,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "进近着陆起落架放下限制速度与减速板操作..."
+      },
+      {
+        "page": 77,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "HUD AOA 攻角支架与最佳着陆姿态保持..."
+      },
+      {
+        "page": 78,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "绿光攻角指数指示灯与下滑点油门控制..."
+      },
+      {
+        "page": 79,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "主轮接地与 13 度抬头气动减速规范..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:rwr威胁告警与干扰弹投放": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "RWR 威胁告警与干扰弹投放",
+    "keywords": [
+      "rwr",
+      "干扰弹",
+      "热诱弹",
+      "箔条",
+      "chaff",
+      "flare",
+      "告警",
+      "雷达告警",
+      "cms"
+    ],
+    "answer": "F-16C 机载电子战自卫与干扰弹 (CMS) 战术运用：\n\n1. **电子战面板开机**：\n   • 在左侧控制台 EW 面板上，将 **RWR** 电源开关推至 **ON** 激活全向雷达告警接收机 [P. 195]。\n   • 将 **RWR / SEARCH** 按钮选定，仪表板左上方圆形方位显示屏 (ALR-56M) 即时显示周围 360° 威胁雷达信号 [P. 195]。\n\n2. **反制物投放系统 (CMS) 准备**：\n   • 将 CMS 面板上的 **CHAFF (箔条)** 与 **FLARE (热诱弹)** 电源全部开启，检查余量指示 [P. 196]。\n   • 模式旋钮可选择：\n     - **MAN (手动)**：按压操纵杆开关投放预设程序。\n     - **SEMI (半自动)**：系统检测到严重威胁时提示程序号，飞行员按键确认投放。\n     - **AUTO (自动)**：系统自主按最优间隔连续投放 [P. 197]。\n\n3. **告警识别与战术反制**：\n   • **连续波锁定/制导**：RWR 音频由断续滴声变为连续刺耳高频尖啸，目标符号外围出现闪烁的菱形圈，代表已被雷达制导导弹锁定 [P. 198]。\n   • 立即大过载转向机动使威胁处于机尾 3 点或 9 点（波束机动切角），同时用拇指**前推操纵杆 CMS 开关 (CMS Forward)** 执行释放程序 [P. 198]。\n   • 箔条形成雷达假目标欺骗中远距雷达弹，同时高密度抛射热诱弹红外热斑规避格斗红外导弹追击 [P. 200]。",
+    "citations": [
+      {
+        "page": 195,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "RWR 雷达告警接收机开机与方位盘威胁判读..."
+      },
+      {
+        "page": 196,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "CMS 面板箔条、热诱弹电源控制与余量监控..."
+      },
+      {
+        "page": 198,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "导弹锁定告警特征与 CMS Forward 手指开关投放..."
+      },
+      {
+        "page": 200,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "机动规避配合反制物投放规避红外与雷达导引头..."
+      }
+    ],
+    "timestamp": 1761912000
+  },
+  "global:航路点设置与导航": {
+    "manual_id": "dcs_f-16c_early_access_guide_cn",
+    "query": "航路点与导航航线设置",
+    "keywords": [
+      "航路点",
+      "航点",
+      "stpt",
+      "导航",
+      "切换航点",
+      "经纬度",
+      "icp"
+    ],
+    "answer": "F-16C 航路点 (Steerpoint / STPT) 切换与设置操作：\n\n1. **查看当前活动航路点**：\n   • 通过风挡下方的综合控制面板 (ICP) 查看 DED 主屏幕中央显示的当前航点编号（例如 **STPT 1**），以及飞往该航点的预估时间 (ETA) 与剩余距离 (TOS) [P. 110]。\n\n2. **快速切换已有航点**：\n   • 使用 ICP 中央的四向拨动开关 (**DCS Switch**) 向上或向下推动，即可在航路点之间顺次步进（1 -> 2 -> 3...） [P. 112]。\n   • 切换后，HUD 上的航向标尺标记点与水平姿态指示器 (HSI) 指针会自动指向新航点方位 [P. 115]。\n\n3. **手动创建/输入新经纬度航点**：\n   • 在 ICP 数字键盘上按下 **4 (STPT)** 键进入航点编辑页面 [P. 118]。\n   • 使用 DCS 向下推使反白光标移至纬度行，输入北纬/南纬与坐标数值，按 **ENTR** 确认。\n   • 依次输入经度 (E/W) 与标高 (ELEV)，完成新航点定义并作为巡航或打击参考点 [P. 118]。",
+    "citations": [
+      {
+        "page": 110,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "DED 主屏幕导航数据与当前活动航路点显示..."
+      },
+      {
+        "page": 112,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "ICP DCS 拨动开关快速步进切换航点..."
+      },
+      {
+        "page": 115,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "HUD 航路点偏航指引符号与 HSI 航向指针..."
+      },
+      {
+        "page": 118,
+        "manual_title": "DCS F-16C Early Access Guide CN",
+        "snippet": "通过 ICP 4 号键手动输入经纬度新航点..."
+      }
+    ],
+    "timestamp": 1761912000
+  }
+}
